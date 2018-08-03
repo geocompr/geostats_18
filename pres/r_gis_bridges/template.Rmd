@@ -84,4 +84,10 @@ dev.off()
 --
 
 ---
+
+layout: true
+background-image: url(../../xaringan_stuff/img/r_geocomp_background.png)
+background-size: cover
+---
+
 # Next slide
