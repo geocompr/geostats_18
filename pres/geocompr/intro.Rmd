@@ -1,8 +1,8 @@
 ---
 title: "Geocomputation with R"
-subtitle: "⚔<br/>Introducing RQGIS and RSAGA"
-author: "Jannes Muenchow"
-date: "GeoStats 2018"
+subtitle: "🗺 <br/> An overview of the field and introduction to the book"
+author: "Robin Lovelace"
+date: "GeoStat 2018"
 output:
   xaringan::moon_reader:
     css: ../../xaringan_stuff/my-theme.css
@@ -14,7 +14,6 @@ output:
       ratio: '4:3'
       countIncrementalSlides: false
 ---
-
 
 ```{r setup, include = FALSE}
 options(htmltools.dir.version = FALSE)
@@ -32,6 +31,30 @@ background-size: cover
 <br>
 <br>
 <br>
-https://github.com/jannes-m/erum18_geocompr
+https://github.com/geocompr/geostats_18
+---
+
+# Origins of the book I
+
+```{r}
+webshot::webshot("https://bookdown.org/nowosad/Geostatystyka/")
+```
 
 ---
+
+# Origins of the book II
+
+```{r}
+webshot::webshot("https://github.com/Robinlovelace/Creating-maps-in-R")
+```
+
+---
+
+# Origins of the book III
+
+```{r}
+webshot::webshot("https://rjournal.github.io/archive/2017/RJ-2017-067/")
+```
+
+
+
