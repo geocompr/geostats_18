@@ -15,13 +15,42 @@ output:
       countIncrementalSlides: false
 ---
 
+
 ```{r setup, include = FALSE}
 options(htmltools.dir.version = FALSE)
+library(RefManageR)
+BibOptions(check.entries = FALSE, 
+           bib.style = "authoryear", 
+           cite.style = 'alphabetic', 
+           style = "markdown",
+           first.inits = FALSE,
+           hyperlink = FALSE, 
+           dashed = FALSE)
+my_bib = ReadBib("../../xaringan_stuff/references.bib", check = FALSE)
 ```
 
+
 layout: true
-background-image: url(../../xaringan_stuff/img/rqgis_background.png)
+background-image: url(../../xaringan_stuff/img/r_geocomp_background.png)
 background-size: cover
+
+---
+
+# Find the slides and code
+<br>
+<br>
+<br>
+<br>
+https://github.com/geocompr/geostats_18
+
+<br>
+<br>
+
+To install all pkgs used in the book:
+
+```{r, eval=FALSE}
+devtools::install_github("robinlovelace/geocompr")
+```
 
 
 ---
@@ -36,25 +65,90 @@ https://github.com/geocompr/geostats_18
 
 # Origins of the book I
 
-```{r}
+```{r, eval=FALSE}
 webshot::webshot("https://bookdown.org/nowosad/Geostatystyka/")
+```
+
+```{r, echo=FALSE}
+# webshot::webshot("https://bookdown.org/nowosad/Geostatystyka/", file = "images/geocompr/geostatystyka.png")
+# i = magick::image_read("images/geocompr/geostatystyka.png")
+# print(i)
+knitr::include_graphics("../../images/geocompr/geostatystyka.png")
 ```
 
 ---
 
 # Origins of the book II
 
-```{r}
+```{r, eval=FALSE}
 webshot::webshot("https://github.com/Robinlovelace/Creating-maps-in-R")
 ```
+
+```{r, echo=FALSE}
+# i = magick::image_read("images/geocompr/creating.png")
+# i
+# i = magick::image_resize(i, "992x")
+# i
+# magick::image_write(i, "images/geocompr/creating.png")
+knitr::include_graphics("../../images/geocompr/creating.png")
+```
+
 
 ---
 
 # Origins of the book III
 
-```{r}
+```{r, eval=FALSE}
 webshot::webshot("https://rjournal.github.io/archive/2017/RJ-2017-067/")
 ```
+
+```{r, echo=FALSE}
+# webshot::webshot("https://rjournal.github.io/archive/2017/RJ-2017-067/", file = "images/geocompr/rqgis-rjournal.png")
+# magick::image_read("images/geocompr/rqgis-rjournal.png")
+knitr::include_graphics("../../images/geocompr/rqgis-rjournal.png")
+```
+
+---
+
+# Contributing 'upstream' - questions
+
+- Comment on a random github issue -> new author!
+
+```{r, eval=FALSE}
+webshot::webshot("https://github.com/jannes-m/RQGIS/issues/66")
+```
+
+```{r, echo=FALSE}
+# webshot::webshot("https://github.com/jannes-m/RQGIS/issues/66#issuecomment-304788979", file = "images/geocompr/rqgis-question.png")
+# i = magick::image_read("images/geocompr/rqgis-question.png")
+# i = magick::image_crop(image = i, "992x+0+1500")
+# magick::image_write(i, "images/geocompr/rqgis-question.png")
+knitr::include_graphics("../../images/geocompr/rqgis-question.png")
+```
+
+---
+
+# First commits by Jannes
+
+```{r, engine='bash'}
+cd ~/repos/geocompr
+git log --author=jannes | tail -n 20
+```
+
+<!-- point: Anyone can get involved -->
+
+---
+
+# Why Geocomputation with R?
+
+---
+
+# What is Geocomputation?
+
+> GeoComputation is about using the various different types of geodata and about developing relevant geo-tools within the overall context of a 'scientific' approach.
+
+
+---
 
 
 
