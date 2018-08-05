@@ -91,3 +91,16 @@ background-size: cover
 ---
 
 # Next slide
+
+`r Citep(my_bib, "bivand_implementing_2000", .opts = list(cite.style = "authoryear"))`.
+
+
+
+---
+
+class: small
+# References
+
+```{r, 'refs', results="asis", echo=FALSE}
+PrintBibliography(my_bib)
+```
