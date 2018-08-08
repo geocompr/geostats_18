@@ -4,7 +4,7 @@
     <title>Geocomputation with R</title>
     <meta charset="utf-8">
     <meta name="author" content="Jannes Muenchow" />
-    <link rel="stylesheet" href="..\..\xaringan_stuff\my-theme.css" type="text/css" />
+    <link rel="stylesheet" href="../../xaringan_stuff/my-theme.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
@@ -16,7 +16,6 @@ class: center, middle, inverse, title-slide
 ### GeoStats 2018
 
 ---
-
 
 
 
@@ -33,7 +32,7 @@ background-size: cover
 &lt;br&gt;
 &lt;br&gt;
 &lt;br&gt;
-https://github.com/jannes-m/erum18_geocompr
+https://github.com/geocompr/geostats_18
 
 ---
 
@@ -77,8 +76,6 @@ For more information and a short introduction by example refer to:
 To introduce the RQGIS package, let's find the intersection between two polygons.
 For this we create two polygons using the `sf`-package.
 
-
-
 .pull-left[
 .smaller-code-font60[
 
@@ -116,7 +113,9 @@ st_sf(geometry = st_sfc(st_polygon(list(coords_1)), st_polygon(list(coords_2))))
 
 ---
 # Find a QGIS algorithm
-Now we would like to know which QGIS geoalgorithm we can use for this task. We assume that the word `intersec` will be part of the short description of the searched geoalgorithm
+Now we would like to know which QGIS geoalgorithm we can use for this task.
+We assume that the word `intersec` will be part of the short description of the searched geoalgorithm.
+
 
 ```r
 library(RQGIS)
@@ -125,13 +124,13 @@ set_env(dev = FALSE)
 
 ```
 ## $root
-## [1] "C:/OSGeo4W64"
+## [1] "/usr"
 ## 
 ## $qgis_prefix_path
-## [1] "C:/OSGeo4W64/apps/qgis-ltr"
+## [1] "/usr/bin/qgis"
 ## 
 ## $python_plugins
-## [1] "C:/OSGeo4W64/apps/qgis-ltr/python/plugins"
+## [1] "/usr/share/qgis/python/plugins"
 ```
 
 ```r
@@ -210,7 +209,7 @@ When I first saw this output I knew nobody would use RQGIS if one had to collect
 
 &lt;figure&gt;
 &lt;center&gt;
-&lt;img src="img/qgis_gui.PNG" width = "85%", height = "85%"/&gt;
+&lt;img src="../../xaringan_stuff/img/qgis_gui.PNG" width = "85%", height = "85%"/&gt;
 &lt;/center&gt;
 &lt;/figure&gt;
 
@@ -293,7 +292,7 @@ class: middle
 
 &lt;figure&gt;
 &lt;center&gt;
-&lt;img src="img/grass_help.PNG" width = "85%", height = "85%"/&gt;
+&lt;img src="../../xaringan_stuff/img/grass_help.PNG" width = "85%", height = "85%"/&gt;
 &lt;/center&gt;
 &lt;/figure&gt;
 
@@ -342,7 +341,7 @@ int = run_qgis("qgis:intersection",
 
 ```
 ## $OUTPUT
-## [1] "C:/Users/pi37pat/AppData/Local/Temp/Rtmp8Cygjh/out.shp"
+## [1] "/tmp/Rtmp77rLiV/out.shp"
 ```
 
 ???
@@ -400,9 +399,181 @@ plot(int$geometry,
 &lt;br&gt;
 &lt;br&gt;
 &lt;br&gt;
-- [RQGIS R journal paper](https://journal.r-project.org/archive/2017/RJ-2017-067/RJ-2017-067.pdf)
+- [RQGIS R journal paper](https://journal.r-project.org/archive/2017/RJ-2017-067/RJ-2017-067.pdf) (Muenchow, Schratz, and Brenning, 2017).
 - [https://geocompr.robinlovelace.net/gis.html](https://geocompr.robinlovelace.net/gis.html)
+- Nice paper on QGIS and its architecture (Graser and Olaya, 2015).
+
 ---
+
+# RSAGA
+
+Ok, let's do the same using **RSAGA**.
+First, we need to tell our system where SAGA is installed, `rsaga.env()` searches our system automatically for a SAGA installation.
+
+
+```r
+library("RSAGA")
+env = rsaga.env()
+```
+
+```
+## Search for SAGA command line program and modules... 
+## Done
+```
+
+```r
+# if this doesn't work, specifically set the path to your SAGA installation (Windows issue)
+# rsaga.env(path = "C:/OSGeo4W64/apps/saga-ltr/")
+```
+
+---
+
+# SAGA modules
+
+Remember SAGA is structured in modules.
+It also might to have a look at the SAGA GUI.
+Let's have a look at the available module libraries.
+
+
+```r
+library("dplyr")
+rsaga.get.libraries() %&gt;%
+  grep("shapes", ., value = TRUE)
+```
+
+```
+## Search for SAGA command line program and modules... 
+## Done
+```
+
+```
+## [1] "io_shapes_dxf"   "io_shapes"       "shapes_grid"     "shapes_lines"   
+## [5] "shapes_points"   "shapes_polygons" "shapes_tools"    "shapes_transect"
+```
+
+---
+# Geoalgorithms
+
+We want to intersect two polygon layers, so we would assume to find a corresponding function in module `shapes_polygons`.
+
+
+```r
+algs = rsaga.get.modules(libs = "shapes_polygons")
+```
+
+```
+## Search for SAGA command line program and modules... 
+## Done
+```
+
+```r
+tail(algs[[1]], 10)
+```
+
+```
+##    code                             name interactive
+## 12   12        Polygon Self-Intersection       FALSE
+## 13   14                        Intersect       FALSE
+## 14   15                       Difference       FALSE
+## 15   16           Symmetrical Difference       FALSE
+## 16   17                            Union       FALSE
+## 17   18                           Update       FALSE
+## 18   19                         Identity       FALSE
+## 19   20 Add Point Attributes to Polygons       FALSE
+## 20   21            Flatten Polygon Layer       FALSE
+## 21   22             Shared Polygon Edges       FALSE
+```
+
+---
+
+# How to use a specific geoalgorithm
+Now that we found out that there is an `Intersect` command, we need to know its parameters.
+
+
+```r
+rsaga.get.usage(lib = "shapes_polygons", module = "Intersect")
+```
+
+```
+## Search for SAGA command line program and modules... 
+## Done
+## library path: /usr/lib/saga/
+## library name: libshapes_polygons
+## library     : Polygons
+## Usage: saga_cmd shapes_polygons 14 [-A &lt;str&gt;] [-B &lt;str&gt;] [-RESULT &lt;str&gt;] [-SPLIT &lt;str&gt;]
+##   -A:&lt;str&gt;     	Layer A
+## 	Shapes (input)
+##   -B:&lt;str&gt;     	Layer B
+## 	Shapes (input)
+##   -RESULT:&lt;str&gt;	Intersect
+## 	Shapes (output)
+##   -SPLIT:&lt;str&gt; 	Split Parts
+## 	Boolean
+```
+
+---
+
+# Run SAGA
+Ok, before running SAGA, we need to export our `sf`-objects.
+
+
+```r
+file_1 = file.path(tempdir(), "poly_1.shp")
+file_2 = file.path(tempdir(), "poly_2.shp")
+write_sf(poly_1, file_1, quiet = TRUE)
+write_sf(poly_2, file_2, quiet = TRUE)
+```
+---
+
+# Now, run SAGA
+
+`rsaga.geoprocessor` is the workhorse that calls the SAGA algorithms using the command-line API. Parameters and corresponding arguments have to be specified in a list (looks a bit like `RQGIS:get_args_man()`).
+
+
+```r
+rsaga.geoprocessor(lib = "shapes_polygons", module = "Intersect", 
+                   list(A = file_1,
+                        B = file_2,
+                        RESULT = file.path(tempdir(), "int.shp"),
+                        SPLIT = FALSE),
+                   show.output.on.console = FALSE)
+```
+
+```
+## Search for SAGA command line program and modules... 
+## Done
+```
+
+---
+
+# Visualize it
+
+.pull-left[
+.smaller-code-font75[
+
+```r
+file = file.path(tempdir(), "int.shp")
+int = st_read(file)
+plot(st_geometry(poly_1))
+plot(st_geometry(poly_2), add = TRUE)
+plot(st_geometry(int), add = TRUE,
+     col = "lightblue")
+```
+]
+]
+
+--
+
+.pull-right[
+![](02_intro_rqgis_rsaga_files/figure-html/unnamed-chunk-25-1.png)&lt;!-- --&gt;
+]
+
+---
+
+# Further reading
+
+- We recommend reading `vignette("RSAGA")` for a deeper look at **RSAGA**.
+- Nice paper on SAGA, it's history and architecture (Conrad, Bechtel, Bock, Dietrich, Fischer, Gerlitz, Wehberg, Wichmann, and Böhner, 2015)
 
 # Your turn
 
@@ -419,6 +590,33 @@ plot(int$geometry,
 
 ???
 Plan curvature decribes the rate of aspect change alone a contour, as well as profile curvature describes the rate of slope change down a flow line. In addition, tangential curvature was proposed as an improvement of plan curvture becuase it is more approperiate to study flow convergence and divergence (Wilson and Gallant, 2000). It is the plan curvature multiplied the sine of the slope angle.
+
+---
+
+class: small
+# References
+
+Conrad, O, B. Bechtel, M. Bock, et al. (2015). "System for
+Automated Geoscientific Analyses (SAGA) v. 2.1.4". In: _Geosci.
+Model Dev._ 8.7, pp. 1991-2007. ISSN: 1991-9603. DOI:
+[10.5194/gmd-8-1991-2015](https://doi.org/10.5194/gmd-8-1991-2015).
+URL:
+[http://www.geosci-model-dev.net/8/1991/2015/](http://www.geosci-model-dev.net/8/1991/2015/)
+(visited on Jun. 12, 2017).
+
+Graser, Anita and Victor Olaya (2015). "Processing: A Python
+Framework for the Seamless Integration of Geoprocessing Tools in
+QGIS". En. In: _ISPRS International Journal of Geo-Information_
+4.4, pp. 2219-2245. ISSN: 2220-9964. DOI:
+[10.3390/ijgi4042219](https://doi.org/10.3390/ijgi4042219). URL:
+[http://www.mdpi.com/2220-9964/4/4/2219](http://www.mdpi.com/2220-9964/4/4/2219)
+(visited on Jul. 21, 2018).
+
+Muenchow, Jannes, Patrick Schratz and Alexander Brenning (2017).
+"RQGIS: Integrating R with QGIS for Statistical Geocomputing". In:
+_The R Journal_ 9 (2). Accepted for publication on 2017-12-04, pp.
+409-428. URL:
+[https://rjournal.github.io/archive/2017/RJ-2017-067/RJ-2017-067.pdf](https://rjournal.github.io/archive/2017/RJ-2017-067/RJ-2017-067.pdf).
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({
