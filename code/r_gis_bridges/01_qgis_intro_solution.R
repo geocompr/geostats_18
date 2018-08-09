@@ -18,11 +18,11 @@
 
 # attach packages
 # just in case let's install the developer version
-devtools::install_github("jannes-m/RQGIS")
+# devtools::install_github("jannes-m/RQGIS")
 library("RQGIS")
 library("sf")
 library("raster")
-library("mapview")
+# library("mapview")
 
 # create two polygons for a toy example
 coords_1 =
@@ -87,7 +87,7 @@ open_help("qgis:intersection")
 get_usage("qgis:intersection")
 # using R named arguments#
 int = run_qgis("qgis:intersection", INPUT = poly_1, INPUT2 = poly_2,
-               OUTPUT = "out.shp",
+               OUTPUT = tempfile(fileext = ".shp"),
                load_output = TRUE)
 
 # we could also use a parameter-argument list to specify QGIS parameters
@@ -100,7 +100,7 @@ st_write(poly_1, file.path(tempdir(), "poly_1.shp"))
 params$INPUT = file.path(tempdir(), "poly_1.shp")
 # params$INPUT = file.path(tempdir(), "poly_1.gpkg")
 params$INPUT2 = poly_2
-params$OUTPUT = "out.shp"
+params$OUTPUT = tempfile(fileext = ".shp")
 int = run_qgis("qgis:intersection", params = params, load_output = TRUE)
 # visualize it
 plot(st_geometry(poly_1), xlim = c(-1, 1), ylim = c(-1, 1))
@@ -124,23 +124,21 @@ find_algorithms("wetness")
 alg = "saga:sagawetnessindex"
 get_usage(alg)
 get_args_man(alg)
-twi = run_qgis(alg, DEM = dem, TWI = "twi.tif", load_output = TRUE)
+twi = run_qgis(alg,
+               DEM = dem,
+               TWI = file.path(tempdir(), "twi.tif"),
+               load_output = TRUE)
 plot(twi, col = RColorBrewer::brewer.pal(n = 9, name = "Blues"))
 # or using mapview
 # proj4string(twi) = paste0("+proj=utm +zone=17 +south +ellps=WGS84 +towgs84=",
 #                           "0,0,0,0,0,0,0 +units=m +no_defs")
-mapview(twi, col.regions = RColorBrewer::brewer.pal(n = 9, "Blues"),
-        at = seq(cellStats(twi, "min") - 0.01, cellStats(twi, "max") + 0.01,
-                 length.out = 9))
+# mapview(twi, col.regions = RColorBrewer::brewer.pal(n = 9, "Blues"),
+#         at = seq(cellStats(twi, "min") - 0.01, cellStats(twi, "max") + 0.01,
+#                  length.out = 9))
 
 # 3.2 Using RSAGA==========================================
 #**********************************************************
 library("RSAGA")
-# adding SAGA 2.3.2 to PATH -> will not work since unsupported by RSAGA
-# some SAGA > 2.2.2 versions might sometimes work with RSAGA
-# Sys.setenv(PATH = paste0(Sys.getenv("PATH"),  "C:\\OSGeo4W64\\apps\\saga-ltr;"))
-# adding SAGA 2.1.2 to PATH (supported by SAGA)
-Sys.setenv(PATH = paste0(Sys.getenv("PATH"),  "C:\\OSGeo4W64\\apps\\saga;"))
 # check if rsaga.env can find the corresponding SAGA installation
 rsaga.env()
 rsaga.get.libraries()
@@ -181,8 +179,11 @@ find_algorithms("intersect")
 # open_help("saga:intersect")
 get_usage("saga:intersect")
 # get_args_man("saga:intersect")
-int_2 = run_qgis("saga:intersect", A = poly_1, B = poly_2,
-                  RESULT = "out_saga.shp", load_output = TRUE)
+int_2 = run_qgis("saga:intersect",
+                 A = poly_1,
+                 B = poly_2,
+                 RESULT = file.path(tempdir(), "out_saga.shp"),
+                 load_output = TRUE)
 
 # 4.3 Using GRASS through RQGIS============================
 #**********************************************************
@@ -190,8 +191,11 @@ find_algorithms("overlay")
 get_usage("grass7:v.overlay")
 # to find out the defaults, use get_args_man
 # get_args_man("grass7:v.overlay")
-int_3 = run_qgis("grass7:v.overlay", ainput = poly_1, binput = poly_2,
-                  output = "out_grass.shp", load_output = TRUE)
+int_3 = run_qgis("grass7:v.overlay",
+                 ainput = poly_1,
+                 binput = poly_2,
+                 output = file.path(tempdir(), "out_grass.shp"),
+                 load_output = TRUE)
 
 # 4.4 Using GRASS through rgrass7==========================
 #**********************************************************
@@ -260,8 +264,11 @@ open_help(alg)
 get_args_man(alg)
 point = random_points[sample(1:nrow(random_points), 1), ]
 coord = paste(sf::st_coordinates(point), collapse = ",")
-out = run_qgis(alg, input = dem, coordinates = coord,
-                output = "out.tif", load_output = TRUE)
+out = run_qgis(alg,
+               input = dem,
+               coordinates = coord,
+               output = tempfile(fileext = ".tif"),
+               load_output = TRUE)
 
 # under Linux you might not get an output (before QGIS 2.18.22)
 # so let's use rgrass7
@@ -281,5 +288,5 @@ plot(out, add = TRUE, col = "lightgray", legend = FALSE)
 plot(point, add = TRUE, col = "red", pch = 16)
 
 # or using mapview
-mapview(out, col = "white", map.type = "Esri.WorldImagery") +
-  mapview(point)
+# mapview(out, col = "white", map.type = "Esri.WorldImagery") +
+#   mapview(point)
