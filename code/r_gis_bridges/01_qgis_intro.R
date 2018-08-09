@@ -18,11 +18,11 @@
 
 # attach packages
 # just in case let's install the developer version
-devtools::install_github("jannes-m/RQGIS")
+# devtools::install_github("jannes-m/RQGIS")
 library("RQGIS")
 library("sf")
 library("raster")
-library("mapview")
+# library("mapview")
 
 # create two polygons for a toy example
 coords_1 =
@@ -86,9 +86,11 @@ find_algorithms("intersec")
 open_help("qgis:intersection")
 get_usage("qgis:intersection")
 # using R named arguments#
-int = run_qgis("qgis:intersection", INPUT = poly_1, INPUT2 = poly_2,
-                OUTPUT = "out.shp",
-                load_output = TRUE)
+int = run_qgis("qgis:intersection",
+               INPUT = poly_1,
+               INPUT2 = poly_2,
+               OUTPUT = file.path(tempdir(), "out.shp"),
+               load_output = TRUE)
 
 # we could also use a parameter-argument list to specify QGIS parameters
 # get_args_man collects all function parameters and corresponding default values
@@ -100,7 +102,7 @@ st_write(poly_1, file.path(tempdir(), "poly_1.shp"))
 params$INPUT = file.path(tempdir(), "poly_1.shp")
 # params$INPUT = file.path(tempdir(), "poly_1.gpkg")
 params$INPUT2 = poly_2
-params$OUTPUT = "out.shp"
+params$OUTPUT = file.path(tempdir(), "out.shp")
 int = run_qgis("qgis:intersection", params = params, load_output = TRUE)
 # visualize it
 plot(st_geometry(poly_1), xlim = c(-1, 1), ylim = c(-1, 1))
