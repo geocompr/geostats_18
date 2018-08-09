@@ -23,7 +23,6 @@ library("dplyr")
 
 # attach data
 data(random_points, package = "RQGIS")
-d = random_points
 data("dem", "ndvi", "study_area", package = "RQGIS")
 
 #**********************************************************
@@ -95,4 +94,5 @@ hist(ta)
 random_points[, names(ta)] = extract(ta, random_points)
 # let's have a look at the output
 random_points
-
+# let's save it
+saveRDS(random_points, "data/random_points.rds")
