@@ -356,7 +356,7 @@ plot(int$geometry, col = "lightblue",
 <br>
 <br>
 <br>
-- [RQGIS R journal paper](https://journal.r-project.org/archive/2017/RJ-2017-067/RJ-2017-067.pdf) `r Citep(my_bib, "muenchow_rqgis_2017", .opts = list(cite.style = "authoryear"))`.
+- [RQGIS R Journal paper](https://journal.r-project.org/archive/2017/RJ-2017-067/RJ-2017-067.pdf) `r Citep(my_bib, "muenchow_rqgis_2017", .opts = list(cite.style = "authoryear"))`.
 - Nice paper on QGIS and its architecture `r Citep(my_bib, "graser_processing_2015", .opts = list(cite.style = "authoryear"))`.
 - [https://geocompr.robinlovelace.net/gis.html](https://geocompr.robinlovelace.net/gis.html)
 
