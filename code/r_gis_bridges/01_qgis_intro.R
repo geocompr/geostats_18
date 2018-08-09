@@ -25,34 +25,36 @@ library("raster")
 library("mapview")
 
 # create two polygons for a toy example
-coords_1 <-  
-  matrix(data = c(0, 0, 1, 0, 1, 1, 0, 1, 0, 0),
+coords_1 =
+  matrix(data =
+           c(0, 0, 1, 0, 1, 1,0, 1, 0, 0),
          ncol = 2, byrow = TRUE)
-coords_2 <-
-  matrix(data = c(-0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 
-                  -0.5, 0.5, -0.5, -0.5),
+coords_2 =
+  matrix(data =
+           c(-0.5, -0.5, 0.5, -0.5, 0.5,
+             0.5,-0.5, 0.5, -0.5, -0.5),
          ncol = 2, byrow = TRUE)
 
 # create the first polygon
-poly_1 <- st_polygon(list((coords_1))) 
+poly_1 = st_polygon(list((coords_1)))
 class(poly_1)
-# convert it into a simple feature collection 
-poly_1 <- st_sfc(poly_1)
+# convert it into a simple feature collection
+poly_1 = st_sfc(poly_1)
 # you could als add a a coordinate reference
-# poly_1 <- st_sfc(poly_1, crs = 4326)
+# poly_1 = st_sfc(poly_1, crs = 4326)
 class(poly_1)
 # finally, convert it into an sf-object
-poly_1 <- st_sf(geometry = poly_1)
+poly_1 = st_sf(geometry = poly_1)
 # you could also add attribute data
 # st_sf(data.frame(id = 1, name = "poly_1"), geometry = poly_1)
 
 # create a second polygon
-poly_2 <- st_polygon(list((coords_2))) %>%
+poly_2 = st_polygon(list((coords_2))) %>%
   st_sfc %>%
-  st_sf(geometry = .)
+  st_sf
 # visualize it
-plot(poly_1, xlim = c(-1, 1), ylim = c(-1, 1))
-plot(poly_2, add = TRUE)
+plot(st_geometry(poly_1$geometry), xlim = c(-1, 1), ylim = c(-1, 1))
+plot(st_geometry(poly_2), add = TRUE)
 
 #**********************************************************
 # 2 INTERSECTION USING RQGIS-------------------------------
@@ -71,7 +73,7 @@ open_app()
 # if a Python tunnel was established, and if not it will open one
 
 # find_algorithms lets you find out about the available geoalgorithms
-algs <- find_algorithms()
+algs = find_algorithms()
 length(algs)
 # in my case, I have 940 geoalgorithms at my disposal
 tail(algs)
@@ -84,26 +86,26 @@ find_algorithms("intersec")
 open_help("qgis:intersection")
 get_usage("qgis:intersection")
 # using R named arguments#
-int <- run_qgis("qgis:intersection", INPUT = poly_1, INPUT2 = poly_2,
+int = run_qgis("qgis:intersection", INPUT = poly_1, INPUT2 = poly_2,
                 OUTPUT = "out.shp",
                 load_output = TRUE)
 
 # we could also use a parameter-argument list to specify QGIS parameters
 # get_args_man collects all function parameters and corresponding default values
-params <- get_args_man("qgis:intersection")
+params = get_args_man("qgis:intersection")
 # we can also use a path to a spatial object
 st_write(poly_1, file.path(tempdir(), "poly_1.shp"))
 # You can also geopackage GPKG
 # st_write(poly_1, file.path(tempdir(), "poly_1.gpkg"))
-params$INPUT <- file.path(tempdir(), "poly_1.shp")
-# params$INPUT <- file.path(tempdir(), "poly_1.gpkg")
-params$INPUT2 <- poly_2
-params$OUTPUT <- "out.shp"
-int <- run_qgis("qgis:intersection", params = params, load_output = TRUE)
+params$INPUT = file.path(tempdir(), "poly_1.shp")
+# params$INPUT = file.path(tempdir(), "poly_1.gpkg")
+params$INPUT2 = poly_2
+params$OUTPUT = "out.shp"
+int = run_qgis("qgis:intersection", params = params, load_output = TRUE)
 # visualize it
-plot(poly_1, xlim = c(-1, 1), ylim = c(-1, 1))
-plot(poly_2, add = TRUE)
-plot(int, col = "lightblue", add = TRUE)
+plot(st_geometry(poly_1), xlim = c(-1, 1), ylim = c(-1, 1))
+plot(st_geometry(poly_2), add = TRUE)
+plot(st_geometry(int), col = "lightblue", add = TRUE)
 
 #**********************************************************
 # 3 YOUR TURN----------------------------------------------
