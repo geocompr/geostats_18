@@ -10,76 +10,106 @@
 #
 # 1. ATTACH PACKAGES AND DATA
 # 2. INTERSECTION USING (R)QGIS
-# 3. INTERSECTION USING sf, SAGA, GRASS
-# 4. SAGA WETNESS INDEX
+# 3. YOUR TURN
 #
 #**********************************************************
 # 1 ATTACH PACKAGES AND DATA-------------------------------
 #**********************************************************
 
 # attach packages
+# just in case let's install the developer version
+devtools::install_github("jannes-m/RQGIS")
 library("RQGIS")
 library("sf")
 library("raster")
 library("mapview")
-library("dplyr")
 
 # create two polygons for a toy example
-coords_1 <-  
-  matrix(data = c(0, 0, 1, 0, 1, 1, 0, 1, 0, 0),
+coords_1 =
+  matrix(data =
+           c(0, 0, 1, 0, 1, 1,0, 1, 0, 0),
          ncol = 2, byrow = TRUE)
-coords_2 <-
-  matrix(data = c(-0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 
-                  -0.5, 0.5, -0.5, -0.5),
+coords_2 =
+  matrix(data =
+           c(-0.5, -0.5, 0.5, -0.5, 0.5,
+             0.5,-0.5, 0.5, -0.5, -0.5),
          ncol = 2, byrow = TRUE)
 
 # create the first polygon
-poly_1 <- st_polygon(list((coords_1))) 
+poly_1 = st_polygon(list((coords_1)))
 class(poly_1)
-# convert it into a simple feature collection 
-poly_1 <- st_sfc(poly_1)
+# convert it into a simple feature collection
+poly_1 = st_sfc(poly_1)
 # you could als add a a coordinate reference
-# poly_1 <- st_sfc(poly_1, crs = 4326)
+# poly_1 = st_sfc(poly_1, crs = 4326)
 class(poly_1)
 # finally, convert it into an sf-object
-poly_1 <- st_sf(geometry = poly_1)
+poly_1 = st_sf(geometry = poly_1)
 # you could also add attribute data
 # st_sf(data.frame(id = 1, name = "poly_1"), geometry = poly_1)
 
 # create a second polygon
-poly_2 <- st_polygon(list((coords_2))) %>%
+poly_2 = st_polygon(list((coords_2))) %>%
   st_sfc %>%
-  st_sf(geometry = .)
+  st_sf
 # visualize it
-plot(poly_1, xlim = c(-1, 1), ylim = c(-1, 1))
-plot(poly_2, add = TRUE)
+plot(st_geometry(poly_1$geometry), xlim = c(-1, 1), ylim = c(-1, 1))
+plot(st_geometry(poly_2), add = TRUE)
 
 #**********************************************************
 # 2 INTERSECTION USING RQGIS-------------------------------
 #**********************************************************
 
-# first of all, we need to find out which function might do this for us
+# set_env tries to find automatically your QGIS installation (this might take a while)
+# But it caches its output so it only takes long for one time.
+set_env()
+# You can also indicate the path to your QGIS installation (much faster), in my
+# case:
+# set_env("C:/OSGeo4W64/", dev = TRUE)
+
+# open_app establishes the Python tunnel
+open_app()
+# you don't have to run it explicitly, all subsequent RQGIS functions will check
+# if a Python tunnel was established, and if not it will open one
+
+# find_algorithms lets you find out about the available geoalgorithms
+algs = find_algorithms()
+length(algs)
+# in my case, I have 940 geoalgorithms at my disposal
+tail(algs)
+
+# you can also use regular expressions with find_algorithms We are looking for a
+# function that does an intersection, so maybe the term intersection will also
+# appear in its name and/or short descriptions
+# which function might do this for us
 find_algorithms("intersec")
 open_help("qgis:intersection")
 get_usage("qgis:intersection")
 # using R named arguments#
-int <- run_qgis("qgis:intersection", INPUT = poly_1, INPUT2 = poly_2,
-                OUTPUT = "out.shp",
-                load_output = TRUE)
+int = run_qgis("qgis:intersection", INPUT = poly_1, INPUT2 = poly_2,
+               OUTPUT = "out.shp",
+               load_output = TRUE)
 
 # we could also use a parameter-argument list to specify QGIS parameters
 # get_args_man collects all function parameters and corresponding default values
-params <- get_args_man("qgis:intersection")
+params = get_args_man("qgis:intersection")
 # we can also use a path to a spatial object
 st_write(poly_1, file.path(tempdir(), "poly_1.shp"))
-params$INPUT <- file.path(tempdir(), "poly_1.shp")
-params$INPUT2 <- poly_2
-params$OUTPUT <- "out.shp"
-int <- run_qgis("qgis:intersection", params = params, load_output = TRUE)
+# You can also geopackage GPKG
+# st_write(poly_1, file.path(tempdir(), "poly_1.gpkg"))
+params$INPUT = file.path(tempdir(), "poly_1.shp")
+# params$INPUT = file.path(tempdir(), "poly_1.gpkg")
+params$INPUT2 = poly_2
+params$OUTPUT = "out.shp"
+int = run_qgis("qgis:intersection", params = params, load_output = TRUE)
 # visualize it
-plot(poly_1, xlim = c(-1, 1), ylim = c(-1, 1))
-plot(poly_2, add = TRUE)
-plot(int, col = "blue", add = TRUE)
+plot(st_geometry(poly_1), xlim = c(-1, 1), ylim = c(-1, 1))
+plot(st_geometry(poly_2), add = TRUE)
+plot(st_geometry(int), col = "lightblue", add = TRUE)
+
+#**********************************************************
+# 3 YOUR TURN----------------------------------------------
+#**********************************************************
 
 #**********************************************************
 # 3 SAGA WETNESS INDEX-------------------------------------
@@ -91,10 +121,10 @@ plot(int, col = "blue", add = TRUE)
 data(dem, package = "RQGIS")
 
 find_algorithms("wetness")
-alg <- "saga:sagawetnessindex"
+alg = "saga:sagawetnessindex"
 get_usage(alg)
 get_args_man(alg)
-twi <- run_qgis(alg, DEM = dem, TWI = "twi.tif", load_output = TRUE)
+twi = run_qgis(alg, DEM = dem, TWI = "twi.tif", load_output = TRUE)
 plot(twi, col = RColorBrewer::brewer.pal(n = 9, name = "Blues"))
 # or using mapview
 # proj4string(twi) = paste0("+proj=utm +zone=17 +south +ellps=WGS84 +towgs84=",
@@ -116,16 +146,16 @@ rsaga.env()
 rsaga.get.libraries()
 rsaga.get.modules(libs = "ta_hydrology")
 rsaga.get.usage(lib = "ta_hydrology", module = "SAGA Wetness Index")
-raster::writeRaster(dem, filename = file.path(tempdir(), "dem.sdat"), 
+raster::writeRaster(dem, filename = file.path(tempdir(), "dem.sdat"),
                     format = "SAGA")
 params = list(DEM = file.path(tempdir(), "dem.sgrd"),
               TWI = file.path(tempdir(), "twi.sdat"))
-rsaga.geoprocessor(lib = "ta_hydrology", module = "SAGA Wetness Index", 
+rsaga.geoprocessor(lib = "ta_hydrology", module = "SAGA Wetness Index",
                    param = params)
 # shortcut version
-# rsaga.wetness.index(in.dem = file.path(tempdir(), "dem.sgrd"), 
+# rsaga.wetness.index(in.dem = file.path(tempdir(), "dem.sgrd"),
 #                     out.wetness.index = file.path(tempdir(), "twi"))
-twi_saga <- raster(file.path(tempdir(), "twi.sdat"))
+twi_saga = raster(file.path(tempdir(), "twi.sdat"))
 
 #**********************************************************
 # 4 INTERSECTION USING sf, SAGA, GRASS---------------------
@@ -134,13 +164,13 @@ twi_saga <- raster(file.path(tempdir(), "twi.sdat"))
 # 4.1 Using sf=============================================
 #**********************************************************
 # sf uses geos, a geospatial library, in the background
-plot(poly_1, xlim = c(-1, 1), ylim = c(-1, 1))
-plot(poly_2, add = TRUE)
+plot(st_geometry(poly_1), xlim = c(-1, 1), ylim = c(-1, 1))
+plot(st_geometry(poly_2), add = TRUE)
 plot(sf::st_intersection(poly_1, poly_2), add = TRUE, col = "red")
 # rgeos::gIntersection has been slower compared to e.g., SAGA's intersection
 # algorithm. However, Edzer has added a spatial index to geometry functions
 # (e.g., st_intersection), so maybe sf is now as fast or even faster than
-# SAGA... 
+# SAGA...
 # for more information on spatial indexes, visit:
 # browseURL("http://r-spatial.org//r/2017/06/22/spatial-index.html")
 
@@ -151,7 +181,7 @@ find_algorithms("intersect")
 # open_help("saga:intersect")
 get_usage("saga:intersect")
 # get_args_man("saga:intersect")
-int_2 <- run_qgis("saga:intersect", A = poly_1, B = poly_2, 
+int_2 = run_qgis("saga:intersect", A = poly_1, B = poly_2,
                   RESULT = "out_saga.shp", load_output = TRUE)
 
 # 4.3 Using GRASS through RQGIS============================
@@ -160,19 +190,19 @@ find_algorithms("overlay")
 get_usage("grass7:v.overlay")
 # to find out the defaults, use get_args_man
 # get_args_man("grass7:v.overlay")
-int_3 <- run_qgis("grass7:v.overlay", ainput = poly_1, binput = poly_2,
+int_3 = run_qgis("grass7:v.overlay", ainput = poly_1, binput = poly_2,
                   output = "out_grass.shp", load_output = TRUE)
 
 # 4.4 Using GRASS through rgrass7==========================
 #**********************************************************
 library("rgrass7")
 
-# assign a CRS and add some attribute data, otherwise writeVECT will complain 
+# assign a CRS and add some attribute data, otherwise writeVECT will complain
 # about an unknown data type
-st_crs(poly_1) <- 4326
-poly_1$id <- 1
+st_crs(poly_1) = 4326
+poly_1$id = 1
 # slightly different syntax
-poly_2 <- sf::st_set_crs(poly_2, 4326) %>%
+poly_2 = sf::st_set_crs(poly_2, 4326) %>%
   mutate(id = 1)
 
 # use link2GI interactively to initialize GRASS choose a GRASS 7 version, e.g.,
@@ -181,7 +211,7 @@ link2GI::linkGRASS7(st_union(poly_1, poly_2), ver_select = TRUE)
 
 # # or manually
 # # indicate path to the GRASS installation on your computer
-# grass_path <- "C:/OSGeo4W64/apps/grass/grass-7.2.1"
+# grass_path = "C:/OSGeo4W64/apps/grass/grass-7.2.1"
 # # next line of code only necessary if we want to use GRASS as installed by
 # # OSGeo4W. Among others, open_app adds some paths to PATH, which are also needed
 # # for running GRASS.
@@ -198,7 +228,7 @@ link2GI::linkGRASS7(st_union(poly_1, poly_2), ver_select = TRUE)
 # # next we need to define the extent, the projection, and possible the resolution
 # execGRASS("g.proj", flags = c("c", "quiet"),
 #           proj4 = sf::st_crs(poly_1)$proj4string)
-# b_box <-  st_bbox(st_union(poly_1, poly_2))
+# b_box =  st_bbox(st_union(poly_1, poly_2))
 # execGRASS("g.region", flags = c("quiet"),
 #           n = as.character(b_box["ymax"]), s = as.character(b_box["ymin"]),
 #           e = as.character(b_box["xmax"]), w = as.character(b_box["xmin"]),
@@ -211,7 +241,7 @@ writeVECT(as(poly_1, "Spatial"), vname = "poly_1")
 writeVECT(as(poly_2, "Spatial"), vname = "poly_2")
 execGRASS("v.overlay", ainput = "poly_1", binput = "poly_2",
           output = "out_grass", operator = "and", flag = "overwrite")
-out_grass <- readVECT("out_grass")
+out_grass = readVECT("out_grass")
 plot(st_geometry(poly_1), xlim = c(-1, 1), ylim = c(-1, 1))
 plot(st_geometry(poly_2), add = TRUE)
 plot(out_grass, add = TRUE, col = "lightblue")
@@ -223,27 +253,27 @@ data("dem")
 data("random_points")
 
 find_algorithms("viewshed")
-alg <- "grass7:r.viewshed"
+alg = "grass7:r.viewshed"
 get_usage(alg)
 open_help(alg)
 # let's find out about the default values
 get_args_man(alg)
-point <- random_points[sample(1:nrow(random_points), 1), ]
-coord <- paste(sf::st_coordinates(point), collapse = ",")
-out <- run_qgis(alg, input = dem, coordinates = coord,
+point = random_points[sample(1:nrow(random_points), 1), ]
+coord = paste(sf::st_coordinates(point), collapse = ",")
+out = run_qgis(alg, input = dem, coordinates = coord,
                 output = "out.tif", load_output = TRUE)
 
-# under Linux you might not get an output (I think we should file a bug...)
+# under Linux you might not get an output (before QGIS 2.18.22)
 # so let's use rgrass7
 # library("rgrass7")
 # link2GI::linkGRASS7(dem, ver_select = TRUE)
 # writeRAST(as(dem, "SpatialGridDataFrame"), "dem")
 # writeVECT(as(random_points, "Spatial"), vname = "points")
-# execGRASS("r.viewshed", input = "dem", coordinates = sf::st_coordinates(point), 
+# execGRASS("r.viewshed", input = "dem", coordinates = sf::st_coordinates(point),
 #           output = "view")
-# out <- raster(readRAST("view"))
+# out = raster(readRAST("view"))
 
-hs <- hillShade(terrain(dem), terrain(dem, "aspect"), 40, 270)
+hs = hillShade(terrain(dem), terrain(dem, "aspect"), 40, 270)
 plot(hs, col = gray(0:100 / 100), legend = FALSE)
 plot(dem, add = TRUE, alpha = 0.5, legend = FALSE)
 plot(point, add = TRUE, col = "red", pch = 16)
