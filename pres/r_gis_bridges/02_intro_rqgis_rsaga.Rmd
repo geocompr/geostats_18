@@ -7,7 +7,7 @@ output:
   xaringan::moon_reader:
     css: ../../xaringan_stuff/my-theme.css
     seal: true
-    lib_dir: ../..//xaringan_stuff/libs
+    lib_dir: ../../xaringan_stuff/libs
     nature:
 #      highlightStyle: dracula
       highlightLines: true
@@ -15,9 +15,17 @@ output:
       countIncrementalSlides: false
 ---
 
-
 ```{r setup, include = FALSE}
 options(htmltools.dir.version = FALSE)
+library(RefManageR)
+BibOptions(check.entries = FALSE, 
+           bib.style = "authoryear", 
+           cite.style = 'alphabetic', 
+           style = "markdown",
+           first.inits = FALSE,
+           hyperlink = FALSE, 
+           dashed = FALSE)
+my_bib = ReadBib("../../xaringan_stuff/references.bib", check = FALSE)
 ```
 
 layout: true
@@ -32,7 +40,7 @@ background-size: cover
 <br>
 <br>
 <br>
-https://github.com/jannes-m/erum18_geocompr
+https://github.com/geocompr/geostats_18
 
 ---
 
@@ -75,8 +83,6 @@ For more information and a short introduction by example refer to:
 
 To introduce the RQGIS package, let's find the intersection between two polygons.
 For this we create two polygons using the `sf`-package.
-
-
 
 .pull-left[
 .smaller-code-font60[
@@ -134,7 +140,9 @@ st_sf(geometry = st_sfc(st_polygon(list(coords_1)), st_polygon(list(coords_2))))
 
 ---
 # Find a QGIS algorithm
-Now we would like to know which QGIS geoalgorithm we can use for this task. We assume that the word `intersec` will be part of the short description of the searched geoalgorithm
+Now we would like to know which QGIS geoalgorithm we can use for this task.
+We assume that the word `intersec` will be part of the short description of the searched geoalgorithm.
+
 ```{r, message = FALSE}
 library(RQGIS)
 set_env(dev = FALSE)
@@ -196,7 +204,7 @@ When I first saw this output I knew nobody would use RQGIS if one had to collect
 
 <figure>
 <center>
-<img src="img/qgis_gui.PNG" width = "85%", height = "85%"/>
+<img src="../../xaringan_stuff/img/qgis_gui.PNG" width = "85%", height = "85%"/>
 </center>
 </figure>
 
@@ -246,7 +254,7 @@ class: middle
 
 <figure>
 <center>
-<img src="img/grass_help.PNG" width = "85%", height = "85%"/>
+<img src="../../xaringan_stuff/img/grass_help.PNG" width = "85%", height = "85%"/>
 </center>
 </figure>
 
@@ -343,13 +351,124 @@ plot(int$geometry, col = "lightblue",
 
 ---
 
-# Further reading
+# Further (R)QGIS reading
 
 <br>
 <br>
 <br>
-- [RQGIS R journal paper](https://journal.r-project.org/archive/2017/RJ-2017-067/RJ-2017-067.pdf)
+- [RQGIS R Journal paper](https://journal.r-project.org/archive/2017/RJ-2017-067/RJ-2017-067.pdf) `r Citep(my_bib, "muenchow_rqgis_2017", .opts = list(cite.style = "authoryear"))`.
+- Nice paper on QGIS and its architecture `r Citep(my_bib, "graser_processing_2015", .opts = list(cite.style = "authoryear"))`.
 - [https://geocompr.robinlovelace.net/gis.html](https://geocompr.robinlovelace.net/gis.html)
+
+---
+
+# RSAGA
+
+Ok, let's do the same using **RSAGA**.
+First, we need to tell our system where SAGA is installed, `rsaga.env()` searches our system automatically for a SAGA installation.
+
+```{r, message = FALSE}
+library("RSAGA")
+env = rsaga.env()
+# if this doesn't work, specifically set the path to your SAGA installation (Windows issue)
+# rsaga.env(path = "C:/OSGeo4W64/apps/saga-ltr/")
+```
+
+---
+
+# SAGA modules
+
+Remember SAGA is structured in modules.
+It also might to have a look at the SAGA GUI.
+Let's have a look at the available module libraries.
+
+```{r, message=FALSE}
+library("dplyr")
+rsaga.get.libraries() %>%
+  grep("shapes", ., value = TRUE)
+```
+
+---
+# Geoalgorithms
+
+We want to intersect two polygon layers, so we would assume to find a corresponding function in module `shapes_polygons`.
+
+```{r}
+algs = rsaga.get.modules(libs = "shapes_polygons")
+tail(algs[[1]], 10)
+```
+
+---
+
+# How to use a specific geoalgorithm
+Now that we found out that there is an `Intersect` command, we need to know its parameters.
+
+```{r, message=FALSE}
+rsaga.get.usage(lib = "shapes_polygons", module = "Intersect")
+```
+
+---
+
+# Run SAGA
+Ok, before running SAGA, we need to export our `sf`-objects.
+
+```{r, message=FALSE}
+file_1 = file.path(tempdir(), "poly_1.shp")
+file_2 = file.path(tempdir(), "poly_2.shp")
+write_sf(poly_1, file_1, quiet = TRUE)
+write_sf(poly_2, file_2, quiet = TRUE)
+```
+---
+
+# Now, run SAGA
+
+`rsaga.geoprocessor` is the workhorse that calls the SAGA algorithms using the command-line API. Parameters and corresponding arguments have to be specified in a list (looks a bit like `RQGIS:get_args_man()`).
+
+```{r, message=FALSE}
+rsaga.geoprocessor(lib = "shapes_polygons", module = "Intersect", 
+                   list(A = file_1,
+                        B = file_2,
+                        RESULT = file.path(tempdir(), "int.shp"),
+                        SPLIT = FALSE),
+                   show.output.on.console = FALSE)
+``` 
+
+---
+
+# Visualize it
+
+.pull-left[
+.smaller-code-font75[
+```{r, eval = FALSE, message = FALSE}
+file = file.path(tempdir(), "int.shp")
+int = st_read(file)
+plot(st_geometry(poly_1))
+plot(st_geometry(poly_2), add = TRUE)
+plot(st_geometry(int), add = TRUE,
+     col = "lightblue")
+```
+]
+]
+
+--
+
+.pull-right[
+```{r, echo=FALSE, message=FALSE}
+int = st_read(file.path(tempdir(), "int.shp"), quiet = TRUE)
+plot(poly_1$geometry, xlim = c(-1, 1), ylim = c(-1, 1))
+plot(st_geometry(poly_2), add = TRUE)
+plot(st_geometry(int), col = "lightblue", add = TRUE)
+```
+]
+
+---
+
+# Further (R)SAGA reading
+
+- We recommend reading `vignette("RSAGA")` for a deeper look at **RSAGA**.
+- Nice paper on SAGA, it's history and architecture `r Citep(my_bib, "conrad_system_2015", .opts = list(cite.style = "authoryear"))`
+- [https://geocompr.robinlovelace.net/gis.html](https://geocompr.robinlovelace.net/gis.html)
+
 ---
 
 # Your turn
@@ -367,3 +486,12 @@ plot(int$geometry, col = "lightblue",
 
 ???
 Plan curvature decribes the rate of aspect change alone a contour, as well as profile curvature describes the rate of slope change down a flow line. In addition, tangential curvature was proposed as an improvement of plan curvture becuase it is more approperiate to study flow convergence and divergence (Wilson and Gallant, 2000). It is the plan curvature multiplied the sine of the slope angle.
+
+---
+
+class: small
+# References
+
+```{r, 'refs', results="asis", echo=FALSE}
+PrintBibliography(my_bib)
+```
