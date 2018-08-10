@@ -1,6 +1,7 @@
 # Filename: terrain_attributes.R (2018-08-09)
 #
-# TO DO: Create predictor rasters (terrain attributes) and extract values to points
+# TO DO: Create predictor rasters (terrain attributes) and extract values to
+#        points
 #
 # Author(s): Jannes Muenchow
 #
@@ -86,7 +87,8 @@ files = file.path("data", paste0(c("dem", "ndvi", "cslope", "carea"), ".tif"))
 ta = stack(files)
 hist(ta)
 # just in case, let's normalize carea ndvi would be also a suitable candidate,
-# however, log-transformation would be useless since NDVI contains negative values
+# however, log-transformation would be useless since NDVI contains negative
+# values
 ta$carea = log10(ta$carea)
 hist(ta)
 
@@ -95,4 +97,4 @@ random_points[, names(ta)] = extract(ta, random_points)
 # let's have a look at the output
 random_points
 # let's save it
-saveRDS(random_points, "data/random_points.rds")
+saveRDS(random_points, "images/r_gis_bridges/random_points.rds")
