@@ -26,7 +26,7 @@ library("vegan")
 library("parallelMap")
 
 # attach data
-random_points = readRDS("images/r_gis_bridges/random_points.rds")
+random_points = readRDS("code/r_gis_bridges/images/random_points.rds")
 # site-species community matrix (plant species of Mt. Mongón)
 data("comm", package = "RQGIS")
 data("dem", "study_area", package = "RQGIS")
@@ -60,6 +60,8 @@ plot(y = sc[, 1], x = elev, xlab = "elevation in m",
 # add sc to random_points, i.e. complete our response predictor (rp) matrix
 sc = data.frame(id = as.numeric(rownames(sc)), sc = sc[, 1])
 rp = inner_join(random_points, sc, by = "id")
+# save your result
+# saveRDS(rp, "code/spatial_cv/images/rp.rds")
 
 #**********************************************************
 # 3 SPATIAL CV---------------------------------------------
@@ -138,8 +140,8 @@ result = mlr::resample(learner = wrapped_lrn_rf,
 # stop parallelization
 parallelStop()
 # save your result, e.g.:
-saveRDS(result, "images/spatial_cv/rf_sp_sp_50it.rds")
-result = readRDS("images/spatial_cv/rf_sp_sp_50it.rds")
+# saveRDS(result, "code/spatial_cv/images/rf_sp_sp_50it.rds")
+
 
 # 3.3.2. Non-spaital doing the same non-spatially
 # create task
@@ -195,8 +197,11 @@ result_nsp = mlr::resample(learner = wrapped_lrn_rf,
 # stop parallelization
 parallelStop()
 # save your result, e.g.:
-saveRDS(result_nsp, "images/spatial_cv/rf_nsp_nsp_50it.rds")
-result_nsp = readRDS("images/spatial_cv/rf_nsp_nsp_50it.rds")
+saveRDS(result_nsp, "code/spatial_cv/images/rf_nsp_nsp_50it.rds")
+
+# attach data again
+result = readRDS("code/spatial_cv/images/rf_sp_sp_50it.rds")
+result_nsp = readRDS("code/spatial_cv/images/rf_nsp_nsp_50it.rds")
 
 # Difference between the mean (-> heavily influenced by outliers)
 # still, this is a strong indication that nsp cv produced over-optimistic
