@@ -67,24 +67,30 @@ run_qgis("saga:sagawetnessindex",
          SLOPE_TYPE = 1,
          AREA_TYPE = 1,
          SLOPE = "data/cslope.tif",
-         AREA = "data/carea.tif")
+         AREA = "data/carea.tif"
+         # if this not works under Windows, replace .tif by .sdat
+         # SLOPE = "data/cslope.sdat",
+         # AREA = "data/carea.sdat"
+         )
 # ok, let's also save dem and ndvi
-# export altitudes and NDVI as ASCII-rasterfiles
-for (i in c("dem", "ndvi")) {
-  writeRaster(get(i),
-              file.path("data", i),
-              format = "GTiff",
-              prj = TRUE,
-              overwrite = TRUE)
-}
+# export altitudes and NDVI as GTiff-rasterfiles
+# for (i in c("dem", "ndvi")) {
+#   writeRaster(get(i),
+#               file.path("code/r_gis_bridges/images/", i),
+#               format = "GTiff",
+#               prj = TRUE,
+#               overwrite = TRUE)
+# }
 
 
 # stack containing the predictor rasters, let's call it terrain attributes (ta)
-ta = stack(dem, ndvi, "data/cslope.asc", "data/carea.asc")
+ta = stack(dem, ndvi, "code/r_gis_bridges/images/cslope.tif",
+           "code/r_gis_bridges/images/carea.tif")
 
 # in case something didn't work for you, load the rasters from disk
-files = file.path("data", paste0(c("dem", "ndvi", "cslope", "carea"), ".tif"))
-ta = stack(files)
+# files = file.path("code/r_gis_bridges/images",
+#                   paste0(c("dem", "ndvi", "cslope", "carea"), ".tif"))
+# ta = stack(files)
 hist(ta)
 # just in case, let's normalize carea ndvi would be also a suitable candidate,
 # however, log-transformation would be useless since NDVI contains negative
@@ -97,4 +103,4 @@ random_points[, names(ta)] = extract(ta, random_points)
 # let's have a look at the output
 random_points
 # let's save it
-saveRDS(random_points, "images/r_gis_bridges/random_points.rds")
+# saveRDS(random_points, "code/r_gis_bridges/images/random_points.rds")
