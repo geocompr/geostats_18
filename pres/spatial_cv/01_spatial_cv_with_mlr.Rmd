@@ -1,0 +1,138 @@
+---
+title: "Geocomputation with R"
+subtitle: "⚔<br/>Spatial cross-validation with **mlr**"
+author: "Jannes Muenchow"
+date: "GeoStats 2018"
+output:
+  xaringan::moon_reader:
+    css: ../../xaringan_stuff/my-theme.css
+    seal: true
+    lib_dir: ../..//xaringan_stuff/libs
+    nature:
+#      highlightStyle: dracula
+      highlightLines: true
+      ratio: '4:3'
+      countIncrementalSlides: false
+---
+
+```{r setup, include = FALSE}
+options(htmltools.dir.version = FALSE)
+library(RefManageR)
+BibOptions(check.entries = FALSE, 
+           bib.style = "authoryear", 
+           cite.style = 'alphabetic', 
+           style = "markdown",
+           first.inits = FALSE,
+           hyperlink = FALSE, 
+           dashed = FALSE)
+my_bib = ReadBib("../../xaringan_stuff/references.bib", check = FALSE)
+```
+
+
+layout: true
+background-image: url(../../xaringan_stuff/img/r_geocomp_background.png)
+background-size: cover
+
+---
+
+# Find the slides and code
+<br>
+<br>
+<br>
+<br>
+https://github.com/geocompr/geostats_18
+
+<br>
+<br>
+Please install following packages:
+```{r, eval=FALSE}
+list_of_packages = c("sf", "raster", "mlr", "RQGIS", "parallelMap")
+install.packages(list_of_packages)
+```
+
+
+---
+layout: false
+
+# Contents of the tutorial
+
+```{r, eval=FALSE, echo=FALSE}
+library(sf)
+library(spData)
+world_laea = st_transform(world, 
+                          crs = "+proj=laea +x_0=0 +y_0=0 +lon_0=-77 +lat_0=39")
+gr = st_graticule(ndiscr = 1000) %>%
+  st_transform("+proj=laea +y_0=0 +lon_0=-77 +lat_0=39 +ellps=WGS84 +no_defs")
+png(filename = "pres/img/globe.png")
+plot(gr$geometry, col = "lightgray", lwd = 3)
+plot(world_laea$geom, bg = "white", col = "lightgray", add = TRUE)
+dev.off()
+```
+
+<figure>
+<img align="right" src="../../xaringan_stuff/img/globe.png" width = "60%", height = "60%"/>
+</figure>
+
+
+1. (Spatial) cross-validation
+--
+
+1. **mlr** building blocks by example
+--
+
+1. Real-world example...
+--
+
+---
+
+layout: true
+background-image: url(../../xaringan_stuff/img/r_geocomp_background.png)
+background-size: cover
+---
+
+# Study area and data
+
+---
+
+# Cross-validation
+
+---
+
+# Random partitioning
+
+<figure>
+<img align="center" src="img/random_partitioning.png"
+</figure>
+
+---
+
+# Spatial partitioning
+
+
+<figure>
+<img align="center" src="img/spatial_partitioning.png">
+</figure>
+
+
+---
+
+
+
+
+---
+
+# Next slide
+
+`r Citep(my_bib, "bivand_implementing_2000", .opts = list(cite.style = "authoryear"))`.
+
+
+
+---
+
+class: small
+# References
+
+```{r, 'refs', results="asis", echo=FALSE}
+PrintBibliography(my_bib)
+```
+
