@@ -88,9 +88,15 @@ dev.off()
 layout: true
 background-image: url(../../xaringan_stuff/img/r_geocomp_background.png)
 background-size: cover
+
+---
+class: inverse, center, middle
+
+# Study area, data and aim
+
 ---
 
-# Study area and data
+# Study area
 
 Where are we? Mount Mongón near Casma in northern Peru.
 <center>
@@ -135,7 +141,6 @@ Where are we? Mount Mongón near Casma in northern Peru.
 - First NMDS axis represents the main gradient (our response, see Chapter 14 of [*Geocomputation with R*](https://geocompr.robinlovelace.net/) `r Citep(my_bib, "lovelace_geocomputation_2018", .opts = list(cite.style = "authoryear"))`
 ]
 
---
 
 .pull-right[
 ```{r, echo=FALSE, message = FALSE}
@@ -190,6 +195,11 @@ grid.text("m asl", x = unit(0.95, "npc"), y = unit(0.75, "npc"),
 
 
 ---
+class: inverse, center, middle
+
+# (Spatial) cross-validation
+
+---
 
 # Cross-validation
 
@@ -215,6 +225,189 @@ grid.text("m asl", x = unit(0.95, "npc"), y = unit(0.75, "npc"),
 
 
 
+---
+class: inverse, center, middle
+
+# **mlr** building blocks
+
+---
+
+# Building blocks
+
+<center>
+<figure>
+<img align="center" src="img/ml_abstraction_crop.png">
+</figure>
+</center>
+
+---
+
+# Input data
+```{r, echo=FALSE, message=FALSE}
+library(mlr)
+library(dplyr)
+library(sf)
+rp = readRDS("../../code/spatial_cv/images/rp.rds")
+# extract the coordinates into a separate dataframe
+coords = sf::st_coordinates(rp) %>%
+  as.data.frame %>%
+  rename(x = X, y = Y)
+# only keep response and predictors which should be used for the modeling
+rp = dplyr::select(rp, -id, -spri) %>%
+  st_set_geometry(NULL)
+```
+
+We are already in possession of the following data
+
+```{r, message=FALSE}
+library(mlr)
+library(dplyr)
+library(sf)
+# response-predictor dataframe
+head(rp, 2)
+# coordinates
+head(coords, 2)
+```
+
+---
+
+# Little data exploration
+
+<center>
+```{r, echo=FALSE, out.width="65%"}
+# first have a look at the data
+d = reshape2::melt(rp, id.vars = "sc")
+xyplot(sc ~ value | variable, data = d, pch = 21, fill = "lightblue", cex = 1.5,
+       col = "black", ylab = "response (sc)", xlab = "predictors",
+       scales = list(x = "free", 
+                     tck = c(1, 0),
+                     alternating = c(1, 0)),
+       strip = strip.custom(bg = c("white"),
+                            par.strip.text = list(cex = 1.2)),
+       panel = function(x, y, ...) {
+         panel.points(x, y, ...)
+         panel.loess(x, y, col = "salmon", span = 0.5, lwd = 2)
+       })
+```
+</center>
+
+---
+
+# Create a task
+```{r}
+library(mlr)
+# create task
+task = makeRegrTask(data = rp, target = "sc",
+                    coordinates = coords)
+```
+
+---
+
+# Learner
+
+To find out which learners are available for a specific task run:
+
+```{r, eval=FALSE}
+lrns = listLearners(task, warn.missing.packages = FALSE)
+dplyr::select(lrns, class, name, short.name, package)
+```
+
+--
+We already know that there is a learner named `regr.lm` for running a simple linear model.
+
+---
+
+# Define the learner
+
+```{r}
+lrn = makeLearner(cl = "regr.lm", predict.type = "response")
+```
+
+--
+To find out more about the learner, run:
+
+```{r, eval=FALSE}
+# simple lm of the stats package
+getLearnerPackages(lrn)
+helpLearner(lrn)
+```
+
+--
+Just to convince you that we are really using a simple `lm`, let us retrieve the learner model:
+
+```{r}
+getLearnerModel(train(lrn, task))
+```
+
+---
+
+# Define spatial partitioning
+```{r}
+# performance level
+perf_level = makeResampleDesc(method = "SpRepCV", 
+                              folds = 5, 
+                              reps = 100)
+```
+
+--
+
+<center>
+<figure>
+<img align="center" src="img/spatial_partitioning.png"/>
+</figure>
+</center>
+---
+
+# Execute the resampling
+```{r, cache=TRUE}
+cv_sp = mlr::resample(
+  task = task,
+  learner = lrn,
+  resampling = perf_level, 
+  # specify the performance measure
+  measures = mlr::rmse)
+# boxplot(cv_sp$measures.test$rmse)
+```
+
+---
+
+# Have a look at the result
+```{r}
+cv_sp
+```
+
+Ok, is this good or not?
+--
+```{r}
+range(rp$sc)
+```
+--
+
+Hence, this corresponds to a mean deviation from the true value of (%):
+
+```{r}
+cv_sp$aggr / diff(range(rp$sc)) * 100
+```
+???
+Admittedly, better than expected... but can we do better?
+---
+class: inverse, center, middle
+
+# Random forests
+
+---
+
+# Random forests
+Like many other machine learning algorithms, random forests have hyperparameters `r Citep(my_bib, "james_introduction_2013", .opts = list(cite.style = "authoryear"))`. 
+These hyperparameters are not estimated from the data like the coefficients of (semi-)parametric models (`lm`, `glm`, `gam`) but need to be specified before the learning begins. 
+To find the optimal hyperparameters, one needs to run many models using random hyperparameter values.
+There are several approaches how to do this, here, we will use a random search with 50 iterations while we limit the tuning space to a specific range in accordance with the literature `r Citep(my_bib, "probst_hyperparameters_2018","schratz_performance_2018", .opts = list(cite.style = "authoryear"))`.
+
+
+# Hyperparameter tuning
+---
+
+# Random search  
 
 ---
 
