@@ -31,7 +31,8 @@ random_points = readRDS("code/r_gis_bridges/images/random_points.rds")
 data("comm", package = "RQGIS")
 data("dem", "study_area", package = "RQGIS")
 # raster stack (environmental predictors)
-files = file.path("data", paste0(c("dem", "ndvi", "cslope", "carea"), ".tif"))
+files = file.path("code/r_gis_bridges/images/",
+                  paste0(c("dem", "ndvi", "cslope", "carea"), ".tif"))
 ep = stack(files)
 ep$carea = log10(ep$carea)
 
