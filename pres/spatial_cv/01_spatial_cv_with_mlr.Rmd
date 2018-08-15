@@ -92,6 +92,103 @@ background-size: cover
 
 # Study area and data
 
+Where are we? Mount Mongón near Casma in northern Peru.
+<center>
+<figure>
+<img align="center" src="img/study_area.png", width="60%", height="60%"/>
+</figure>
+</center>
+---
+# Austral summer
+
+<center>
+<figure>
+<img align="center" src="img/desert_near_mongon.png", width="100%", height="100%"/>
+</figure>
+</center>
+---
+
+# Mount Mongón in summer
+
+<center>
+<figure>
+<img align="center" src="img/mongon_summer.png"/>
+</figure>
+</center>
+
+---
+
+# Mount Mongón in austral winter
+
+<center>
+<figure>
+<img align="center" src="img/mongon_winter.png", width=90%, height=90%/>
+</figure>
+</center>
+---
+
+# Data
+
+.pull-left[
+- 100 randomly distributed plots
+- coverage of all vascular plants in each plot
+- First NMDS axis represents the main gradient (our response, see Chapter 14 of [*Geocomputation with R*](https://geocompr.robinlovelace.net/) `r Citep(my_bib, "lovelace_geocomputation_2018", .opts = list(cite.style = "authoryear"))`
+]
+
+--
+
+.pull-right[
+```{r, echo=FALSE, message = FALSE}
+library("latticeExtra")
+library("grid")
+library("sf")
+library("raster")
+
+# attach the data
+data("study_area", "random_points", "comm", "dem", "ndvi", package = "RQGIS")
+# create hillshade
+hs = hillShade(terrain(dem), terrain(dem, "aspect"))
+p_1 = spplot(dem, col.regions = terrain.colors(50), alpha.regions = 0.5,
+       scales = list(draw = TRUE,
+                     tck = c(1, 0)),
+       colorkey = list(space = "right", title = "m asl",
+                               width = 0.5, height = 0.5,
+                       axis.line = list(col = "black")),
+       sp.layout = list(
+         list("sp.points", as(random_points, "Spatial"), pch = 16,
+              col = "black", cex = 1.25, first = FALSE),
+         list("sp.polygons", as(study_area, "Spatial"), 
+              col = "black", lwd = 1.5, first = FALSE)
+       )
+       ) + 
+  latticeExtra::as.layer(spplot(hs, col.regions = gray(0:100 / 100)), 
+                         under = TRUE)
+print(p_1)
+grid.text("m asl", x = unit(0.95, "npc"), y = unit(0.75, "npc"), 
+          gp = gpar(cex = 1))
+```
+]
+
+---
+
+# Aim
+
+.pull-left[
+- model the floristic gradient as a function of environmental predictors using a random forest model
+- spatial cross-validation to retrieve a bias-reduced estimate of the model's performance
+- tune hyperparameters for the predictive mapping of the floristic gradient
+- but before we do that, we will introduce the **mlr** building blocks to easily do spatial cross-validation with a simple `lm` (though this definitely is not be the most appropriate model for our data...)
+]
+
+.pull-right[
+```{r, echo=FALSE, message = FALSE}
+print(p_1)
+grid.text("m asl", x = unit(0.95, "npc"), y = unit(0.75, "npc"), 
+          gp = gpar(cex = 1))
+```
+]
+
+
 ---
 
 # Cross-validation
