@@ -368,7 +368,20 @@ cv_sp = mlr::resample(
   measures = mlr::rmse)
 # boxplot(cv_sp$measures.test$rmse)
 ```
-
+???
+```{r, eval=FALSE, echo=FALSE}
+# we can run the same using a conventional cross-validation
+# task_nsp = makeRegrTask(data = rp, target = "sc")
+# perf_level_nsp = makeResampleDesc(method = "RepCV", folds = 5, reps = 100)
+# cv_nsp = mlr::resample(learner = lrn, 
+#                       task = task_nsp,
+#                       resampling = perf_level_nsp, 
+#                       measures = mlr::rmse)
+# boxplot(cv_sp$measures.test$rmse, cv_nsp$measures.test$rmse,
+#         col = c("lightblue2", "mistyrose2"),
+#         names = c("spatial CV", "conventional CV"),
+#         ylab = "RMSE")
+```
 ---
 
 # Have a look at the result
