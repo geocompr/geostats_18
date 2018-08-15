@@ -7,7 +7,7 @@ output:
   xaringan::moon_reader:
     css: ../../xaringan_stuff/my-theme.css
     seal: true
-    lib_dir: ../..//xaringan_stuff/libs
+    lib_dir: ../../xaringan_stuff/libs
     nature:
 #      highlightStyle: dracula
       highlightLines: true
@@ -46,7 +46,8 @@ https://github.com/geocompr/geostats_18
 <br>
 Please install following packages:
 ```{r, eval=FALSE}
-list_of_packages = c("sf", "raster", "mlr", "RQGIS", "parallelMap")
+list_of_packages = c("sf", "raster", "mlr", "ranger", "RQGIS",
+                     "parallelMap")
 install.packages(list_of_packages)
 ```
 
@@ -74,13 +75,16 @@ dev.off()
 </figure>
 
 
-1. (Spatial) cross-validation
+1. Study area, data and aim
 --
 
-1. **mlr** building blocks by example
+1. Introduction to **(spatial) cross-validation**
 --
 
-1. Real-world example...
+1. **mlr** building blocks
+--
+
+1. Random forest modeling with **mlr**
 --
 
 ---
@@ -138,7 +142,7 @@ Where are we? Mount Mongón near Casma in northern Peru.
 .pull-left[
 - 100 randomly distributed plots
 - coverage of all vascular plants in each plot
-- First NMDS axis represents the main gradient (our response, see Chapter 14 of [*Geocomputation with R*](https://geocompr.robinlovelace.net/) `r Citep(my_bib, "lovelace_geocomputation_2018", .opts = list(cite.style = "authoryear"))`
+- First NMDS axis represents the main gradient (our response, see Chapter 14 of [*Geocomputation with R*](https://geocompr.robinlovelace.net/eco) `r Citep(my_bib, "lovelace_geocomputation_2018", .opts = list(cite.style = "authoryear"))`
 ]
 
 
@@ -197,11 +201,14 @@ grid.text("m asl", x = unit(0.95, "npc"), y = unit(0.75, "npc"),
 ---
 class: inverse, center, middle
 
-# (Spatial) cross-validation
+# Introduction to (spatial) cross-validation
 
 ---
 
 # Cross-validation
+
+Aim of spatial cross-validation is to find out how generalizable a model is.
+Fitting to closely the input data, including its noise, leads to a bad predictive performance on unseen data (overfitting).
 
 ---
 
@@ -210,6 +217,14 @@ class: inverse, center, middle
 <figure>
 <img align="center" src="img/random_partitioning.png"
 </figure>
+
+--
+
+Problems with conventional random partitioning when using spatial data:
+
+- violation of the fundamental independence assumption in cross-validation
+- which subsequently leads to overoptimistic, i.e. biased results
+- Solution: use spatial partitioning for a bias-reduced assessment of a **model's performance**
 
 ---
 
@@ -222,23 +237,9 @@ class: inverse, center, middle
 
 
 ---
-
-
-
----
 class: inverse, center, middle
 
 # **mlr** building blocks
-
----
-
-# Building blocks
-
-<center>
-<figure>
-<img align="center" src="img/ml_abstraction_crop.png">
-</figure>
-</center>
 
 ---
 
@@ -289,6 +290,18 @@ xyplot(sc ~ value | variable, data = d, pch = 21, fill = "lightblue", cex = 1.5,
          panel.loess(x, y, col = "salmon", span = 0.5, lwd = 2)
        })
 ```
+</center>
+
+---
+
+# Building blocks
+
+**mlr** is a metapackage that lets you combine hundreds of modeling algorithms of many different package within a single framework.
+
+<center>
+<figure>
+<img align="center" src="img/ml_abstraction_crop.png">
+</figure>
 </center>
 
 ---
@@ -360,7 +373,7 @@ perf_level = makeResampleDesc(method = "SpRepCV",
 
 # Execute the resampling
 ```{r, cache=TRUE}
-cv_sp = mlr::resample(
+cv_sp_lm = mlr::resample(
   task = task,
   learner = lrn,
   resampling = perf_level, 
@@ -373,11 +386,11 @@ cv_sp = mlr::resample(
 # we can run the same using a conventional cross-validation
 # task_nsp = makeRegrTask(data = rp, target = "sc")
 # perf_level_nsp = makeResampleDesc(method = "RepCV", folds = 5, reps = 100)
-# cv_nsp = mlr::resample(learner = lrn, 
+# cv_nsp_lm = mlr::resample(learner = lrn, 
 #                       task = task_nsp,
 #                       resampling = perf_level_nsp, 
 #                       measures = mlr::rmse)
-# boxplot(cv_sp$measures.test$rmse, cv_nsp$measures.test$rmse,
+# boxplot(cv_sp_lm$measures.test$rmse, cv_nsp_lm$measures.test$rmse,
 #         col = c("lightblue2", "mistyrose2"),
 #         names = c("spatial CV", "conventional CV"),
 #         ylab = "RMSE")
@@ -386,7 +399,7 @@ cv_sp = mlr::resample(
 
 # Have a look at the result
 ```{r}
-cv_sp
+cv_sp_lm
 ```
 
 Ok, is this good or not?
@@ -399,7 +412,7 @@ range(rp$sc)
 Hence, this corresponds to a mean deviation from the true value of (%):
 
 ```{r}
-cv_sp$aggr / diff(range(rp$sc)) * 100
+cv_sp_lm$aggr / diff(range(rp$sc)) * 100
 ```
 ???
 Admittedly, better than expected... but can we do better?
@@ -416,22 +429,199 @@ These hyperparameters are not estimated from the data like the coefficients of (
 To find the optimal hyperparameters, one needs to run many models using random hyperparameter values.
 There are several approaches how to do this, here, we will use a random search with 50 iterations while we limit the tuning space to a specific range in accordance with the literature `r Citep(my_bib, "probst_hyperparameters_2018","schratz_performance_2018", .opts = list(cite.style = "authoryear"))`.
 
+---
+# Again: Define a learner
+We can use the already specified regression task... just in case let us repeat it here again
+
+```{r}
+task = makeRegrTask(data = rp, target = "sc",
+                    coordinates = coords)
+```
+
+--
+But we need to change our learner in order to use a random forest model.
+Here, we will use a random forest implementation of the **ranger** package, i.e. we replace `regr.lm` by `reg.ranger` (again see `listLearners(task)`).
+
+--
+
+```{r}
+lrn = makeLearner(cl = "regr.ranger", predict.type = "response")
+```
+
+
+---
+
+# Spatial cross-validation
+
+We are already familiar with the spatial cross-validation of the performance level (outer level).
+```{r}
+perf_level = makeResampleDesc(method = "SpRepCV", folds = 5,
+                              reps = 100)
+```
+
+---
 
 # Hyperparameter tuning
+However, now that we use a random forest model, we need to tune its hyperparameters. 
+And we have to do it in an inner loop using again spatial cross-validation.
+The inner loop is necessary because tuning the hyperparameters in the performance loop would be like cheating a bit since we then would use the same data for the performance estimation and the hyperparameter tuning.
+This is called nested spatial cross-validation.
+A visualization might help (taken from `r Citet(my_bib, "schratz_performance_2018", .opts = list(cite.style = "authoryear"))`):
+
+---
+
+<br>
+<br>
+<br>
+
+<center>
+<figure>
+<img align="center" src="img/cv.png" width="150%" height="150%"/>
+</figure>
+</center>
+
+--
+
+I know this might seem a bit overwhelming in the beginning but it is an easy concept once you get your head around it.
+You can reread nested spatial cross-validation including hyperparamter tuning in Chapter 11 of [*Geocomputation with R*](https://geocompr.robinlovelace.net/spatial-cv) `r Citep(my_bib, "lovelace_geocomputation_2018", .opts = list(cite.style = "authoryear"))`
+
+---
+
+# Hyperparameter tuning
+
+Let us define five spatially disjoint partitions in the tune level (one repetition).
+
+```{r}
+tune_level = makeResampleDesc(method = "SpCV", iters = 5)
+```
+
 ---
 
 # Random search  
 
+Next, we need to tell **mlr** to find the optimal hyperparameters via a random search with 50 iterations:
+
+```{r}
+ctrl = makeTuneControlRandom(maxit = 50)
+```
+
+--
+Let us limit the tuning space in accordance with the literature `r Citep(my_bib, "probst_hyperparameters_2018", .opts = list(cite.style = "authoryear"))` 
+
+```{r}
+ps = makeParamSet(
+  makeIntegerParam("mtry", lower = 1, upper = ncol(rp) - 1),
+  makeNumericParam("sample.fraction", lower = 0.2, upper = 0.9),
+  makeIntegerParam("min.node.size", lower = 1, upper = 10)
+)
+```
+
+--
+Recommended literature:
+
+- `r Citet(my_bib, "james_introduction_2013", .opts = list(cite.style = "authoryear"))`
+- `r Citet(my_bib, "probst_hyperparameters_2018", .opts = list(cite.style = "authoryear"))`. 
+- Chapter 14 of [*Geocomputation with R*](https://geocompr.robinlovelace.net/eco) `r Citep(my_bib, "lovelace_geocomputation_2018", .opts = list(cite.style = "authoryear"))`
+
+
+???
+In random forests, the hyperparameters mtry, min.node.size and sample.fraction determine the degree of randomness, and should be tuned (Probst, Wright, and Boulesteix 2018). 
+**mtry** indicates how many predictor variables should be used in each tree. If all predictors are used, then this corresponds in fact to bagging (see beginning of section 14.4).
+The **sample.fraction** parameter specifies the fraction of observations to be used in each tree. Smaller fractions lead to greater diversity, and thus less correlated trees which often is desirable (see above). 
+The **min.node.size** parameter indicates the number of observations a terminal node should at least have (see also Figure 14.4). Naturally, trees and computing time become larger, the lower the min.node.size.
 ---
 
-# Next slide
+# Wrap it all up
 
-`r Citep(my_bib, "bivand_implementing_2000", .opts = list(cite.style = "authoryear"))`.
-
-
+```{r, eval=FALSE}
+wrapped_lrn_rf = 
+  makeTuneWrapper(learner = lrn_rf,
+                  # inner loop (tunning level)
+                  resampling = tune_level,
+                  # hyperparameter seach space
+                  par.set = ps,
+                  # random search
+                  control = ctrl,
+                  show.info = TRUE,
+                  # performance measure
+                  measures = mlr::rmse)
+```
 
 ---
 
+# Resampling
+
+Be careful, running the next code chunk takes a while since we are asking R to run `125,500` models.
+Parallelization might be a good idea. 
+See `code/spatial_cv/01-mlr.R` of the `geocompr/geostats_18` repository how to set it up. 
+
+```{r, eval=FALSE}
+set.seed(12345)
+cv_sp_rf = mlr::resample(learner = wrapped_lrn_rf,
+                         task = task,
+                         resampling = perf_level,
+                         extract = getTuneResult,
+                         measures = mlr::rmse)
+```
+
+---
+
+# Have a look at the result
+
+
+```{r, echo=FALSE, fig.align="center"}
+# attach data again
+cv_sp_rf = readRDS("../../code/spatial_cv/images/rf_sp_sp_50it.rds")
+cv_nsp_rf = readRDS("../../code/spatial_cv/images/rf_nsp_nsp_50it.rds")
+
+# Difference between the mean (-> heavily influenced by outliers)
+# still, this is a strong indication that nsp cv produced over-optimistic
+# results
+# result$aggr
+# result_nsp$aggr
+# Visualize difference between spatial and non-spatial CV
+boxplot(cv_sp_rf$measures.test$rmse,
+        cv_nsp_rf$measures.test$rmse,
+        col = c("lightblue2", "mistyrose2"),
+        names = c("spatial CV", "conventional CV"),
+        ylab = "RMSE")
+``` 
+
+---
+# Interesting...
+
+```{r}
+cv_sp_lm$aggr
+cv_sp_rf$aggr
+```
+
+--
+The linear model is slightly better than the random forest model.
+
+--
+Reasons:
+- Relationship between response and predictors linear enough
+- just four predictors, adding further environmental predictors and xy-coordinates might change the result
+
+???
+In fact, one often uses random forests with many, many variables.
+Still, it is always worth to have a look at simple solutions -> use the most parsimonious model
+
+---
+
+# Predictive mapping
+Find the code again in `code/spatial_cv/01-mlr.R` of the `geocompr/geostats_18`.
+
+Use a png
+
+---
+Use pptx background image!!!! Much nicer
+<center>
+<figure>
+<img align="center" src="img/fog_flag_mongon.png", width="200%", height="200%"/>
+</figure>
+</center>
+---
 class: small
 # References
 
