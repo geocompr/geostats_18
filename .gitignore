@@ -8,3 +8,5 @@ raw
 pres/*/img
 pres/*/*html
 02_intro_rqgis_rsaga_files
+01_spatial_cv_with_mlr_cache
+01_spatial_cv_with_mlr_files
