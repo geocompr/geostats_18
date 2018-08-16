@@ -296,14 +296,15 @@ xyplot(sc ~ value | variable, data = d, pch = 21, fill = "lightblue", cex = 1.5,
 
 # Building blocks
 
-**mlr** is a metapackage that lets you combine hundreds of modeling algorithms of many different package within a single framework.
+**mlr** is a metapackage that lets you combine hundreds of modeling algorithms of many different package within a single framework `r Citep(my_bib, "bischl_mlr:_2016", .opts = list(cite.style = "authoryear"))`
 
 <center>
 <figure>
-<img align="center" src="img/ml_abstraction_crop.png">
+<img align="center" src="img/ml_abstraction_crop.png" width="90%" height="90%">
 </figure>
 </center>
 
+Source: [openml.github.io](http://openml.github.io/articles/slides/useR2017_tutorial/slides_tutorial_files/ml_abstraction-crop.png)
 ---
 
 # Create a task
@@ -596,7 +597,7 @@ cv_sp_rf$aggr
 ```
 
 --
-The linear model is slightly better than the random forest model.
+The linear model is better than the random forest model...
 
 --
 Reasons:
@@ -612,15 +613,6 @@ Still, it is always worth to have a look at simple solutions -> use the most par
 # Predictive mapping
 Find the code again in `code/spatial_cv/01-mlr.R` of the `geocompr/geostats_18`.
 
-Use a png
-
----
-Use pptx background image!!!! Much nicer
-<center>
-<figure>
-<img align="center" src="img/fog_flag_mongon.png", width="200%", height="200%"/>
-</figure>
-</center>
 ---
 class: small
 # References
@@ -628,4 +620,11 @@ class: small
 ```{r, 'refs', results="asis", echo=FALSE}
 PrintBibliography(my_bib)
 ```
+
+---
+layout: true
+background-image: url(img/fog_flag_mongon.png)
+background-size: cover
+
+---
 
