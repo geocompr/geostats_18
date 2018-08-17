@@ -14,7 +14,7 @@ output:
       ratio: '4:3'
       countIncrementalSlides: false
 # for use with citr (allows auto-updates)
-bibliography: ../../xaringan_stuff/references.bib
+bibliography: refs-geostat.bib
 ---
 
 <!-- 14:15 - 15:00 - 45 minute talk  -->
@@ -31,7 +31,7 @@ BibOptions(check.entries = FALSE,
            first.inits = FALSE,
            hyperlink = FALSE, 
            dashed = FALSE)
-my_bib = ReadBib("../../xaringan_stuff/references.bib", check = FALSE)
+my_bib = ReadBib("refs-geostat.bib", check = FALSE)
 ```
 
 
@@ -84,10 +84,10 @@ webshot::webshot("https://bookdown.org/nowosad/Geostatystyka/")
 ```
 
 ```{r, echo=FALSE}
-# webshot::webshot("https://bookdown.org/nowosad/Geostatystyka/", file = "images/geocompr/geostatystyka.png")
-# i = magick::image_read("images/geocompr/geostatystyka.png")
+# webshot::webshot("https://bookdown.org/nowosad/Geostatystyka/", file = "images/geostatystyka.png")
+# i = magick::image_read("images/geostatystyka.png")
 # print(i)
-knitr::include_graphics("../../images/geocompr/geostatystyka.png")
+knitr::include_graphics("images/geostatystyka.png")
 ```
 
 ---
@@ -99,12 +99,12 @@ webshot::webshot("https://github.com/Robinlovelace/Creating-maps-in-R")
 ```
 
 ```{r, echo=FALSE}
-# i = magick::image_read("images/geocompr/creating.png")
+# i = magick::image_read("images/creating.png")
 # i
 # i = magick::image_resize(i, "992x")
 # i
-# magick::image_write(i, "images/geocompr/creating.png")
-knitr::include_graphics("../../images/geocompr/creating.png")
+# magick::image_write(i, "images/creating.png")
+knitr::include_graphics("images/creating.png")
 ```
 
 ---
@@ -116,9 +116,9 @@ webshot::webshot("https://rjournal.github.io/archive/2017/RJ-2017-067/")
 ```
 
 ```{r, echo=FALSE}
-# webshot::webshot("https://rjournal.github.io/archive/2017/RJ-2017-067/", file = "images/geocompr/rqgis-rjournal.png")
-# magick::image_read("images/geocompr/rqgis-rjournal.png")
-knitr::include_graphics("../../images/geocompr/rqgis-rjournal.png")
+# webshot::webshot("https://rjournal.github.io/archive/2017/RJ-2017-067/", file = "images/rqgis-rjournal.png")
+# magick::image_read("images/rqgis-rjournal.png")
+knitr::include_graphics("images/rqgis-rjournal.png")
 ```
 
 ---
@@ -132,11 +132,11 @@ webshot::webshot("https://github.com/jannes-m/RQGIS/issues/66")
 ```
 
 ```{r, echo=FALSE}
-# webshot::webshot("https://github.com/jannes-m/RQGIS/issues/66#issuecomment-304788979", file = "images/geocompr/rqgis-question.png")
-# i = magick::image_read("images/geocompr/rqgis-question.png")
+# webshot::webshot("https://github.com/jannes-m/RQGIS/issues/66#issuecomment-304788979", file = "images/rqgis-question.png")
+# i = magick::image_read("images/rqgis-question.png")
 # i = magick::image_crop(image = i, "992x+0+1500")
-# magick::image_write(i, "images/geocompr/rqgis-question.png")
-knitr::include_graphics("../../images/geocompr/rqgis-question.png")
+# magick::image_write(i, "images/rqgis-question.png")
+knitr::include_graphics("images/rqgis-question.png")
 ```
 
 ---
@@ -278,8 +278,7 @@ pointmap(as.points(bodmin), add=TRUE)
 # pointmap(as.points(bodmin), add=TRUE)
 ```
 
---
--
+---
 
 # Observations
 - R' is robust and future-proof 
@@ -521,19 +520,20 @@ knitr::include_graphics("https://raw.githubusercontent.com/npct/pct-team/master/
 - Sea level rise could change the course of humanity
 - See code: https://github.com/geocompr/geostats_18/blob/master/code/geocompr/slr.R
 
-```{r}
+`Todo: improve this section, add refs + image!
+
+``{r}
 
 ```
 
 
-
 ---
 
-class: small
 # References
 
 ```{r, 'refs', results="asis", echo=FALSE}
 PrintBibliography(my_bib)
+# RefManageR::WriteBib(my_bib, "refs-geostat.bib")
 ```
 
 
