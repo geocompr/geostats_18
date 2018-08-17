@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "scz-mapedit",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "id": 0, "properties": { "X_leaflet_id": 714, "feature_type": "rectangle" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 14.293213, 53.378794 ], [ 14.293213, 54.882519 ], [ 18.539429, 54.882519 ], [ 18.539429, 53.378794 ], [ 14.293213, 53.378794 ] ] ] } }
+]
+}
