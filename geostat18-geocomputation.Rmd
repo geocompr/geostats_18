@@ -5,9 +5,9 @@ author: "Robin Lovelace"
 date: "GeoStat 2018(-08-20)"
 output:
   xaringan::moon_reader:
-    css: ../../xaringan_stuff/my-theme.css
+    css: xaringan_stuff/my-theme.css
     seal: true
-    lib_dir: ../..//xaringan_stuff/libs
+    lib_dir: xaringan_stuff/libs
     nature:
 #      highlightStyle: dracula
       highlightLines: true
@@ -36,7 +36,7 @@ my_bib = ReadBib("refs-geostat.bib", check = FALSE)
 
 
 layout: true
-background-image: url(../../xaringan_stuff/img/r_geocomp_background.png)
+background-image: url(xaringan_stuff/img/r_geocomp_background.png)
 background-size: cover
 
 ---
@@ -44,7 +44,7 @@ background-size: cover
 # 'Team geocompr'
 
 <figure>
-<img align="right" src="../../xaringan_stuff/img/geocompr_logo.png" width = "60%", height = "60%"/>
+<img align="right" src="xaringan_stuff/img/geocompr_logo.png" width = "60%", height = "60%"/>
 </figure>
 
 - [Jakub Nowosad](https://nowosad.github.io/): developer of GeoPAT + more. Lecturing 09:00 on Wednesday.
