@@ -291,7 +291,7 @@ pred = mask(pred, study_area) %>%
 # create a hillshade
 hs = hillShade(terrain(dem), terrain(dem, "aspect")) %>%
   mask(., study_area)
-spplot(extend(pred, 2), col.regions = pal(50), alpha.regions = 0.7,
+p_2 = spplot(extend(pred, 2), col.regions = pal(50), alpha.regions = 0.7,
        scales = list(draw = TRUE,
                      tck = c(1, 0),
                      cex = 0.8),
@@ -306,3 +306,8 @@ spplot(extend(pred, 2), col.regions = pal(50), alpha.regions = 0.7,
 ) +
   latticeExtra::as.layer(spplot(hs, col.regions = gray(0:100 / 100)),
                          under = TRUE)
+
+# png("pres/spatial_cv/img/pred_map.png", res = 300, width = 15, height = 15,
+#     units = "cm")
+print(p_2)
+# dev.off()
