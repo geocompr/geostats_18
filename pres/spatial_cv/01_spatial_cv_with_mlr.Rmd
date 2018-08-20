@@ -207,7 +207,7 @@ class: inverse, center, middle
 
 # Cross-validation
 
-Aim of spatial cross-validation is to find out how generalizable a model is.
+The aim of (spatial) cross-validation is to find out how generalizable a model is.
 Fitting to closely the input data, including its noise, leads to a bad predictive performance on unseen data (overfitting).
 
 ---
@@ -296,7 +296,7 @@ xyplot(sc ~ value | variable, data = d, pch = 21, fill = "lightblue", cex = 1.5,
 
 # Building blocks
 
-**mlr** is a metapackage that lets you combine hundreds of modeling algorithms of many different package within a single framework `r Citep(my_bib, "bischl_mlr:_2016", .opts = list(cite.style = "authoryear"))`
+**mlr** is a metapackage that lets you combine hundreds of modeling algorithms of many different packages within a single framework `r Citep(my_bib, "bischl_mlr:_2016", .opts = list(cite.style = "authoryear"))`
 
 <center>
 <figure>
@@ -319,7 +319,7 @@ task = makeRegrTask(data = rp, target = "sc",
 
 # Learner
 
-To find out which learners are available for a specific task run:
+To find out which learners are available for a specific task, run:
 
 ```{r, eval=FALSE}
 lrns = listLearners(task, warn.missing.packages = FALSE)
@@ -610,7 +610,7 @@ The linear model is better than the random forest model...
 
 --
 Reasons:
-- Relationship between response and predictors linear enough
+- Relationship between response and predictors is linear enough
 - just four predictors, adding further environmental predictors and xy-coordinates might change the result
 
 ???
@@ -620,7 +620,7 @@ Still, it is always worth to have a look at simple solutions -> use the most par
 ---
 
 # Predictive mapping
-Find the code again in `code/spatial_cv/01-mlr.R` of the `geocompr/geostats_18`.
+Find the code again in `code/spatial_cv/01-mlr.R` of the `geocompr/geostats_18` respository.
 
 <center>
 <figure>
