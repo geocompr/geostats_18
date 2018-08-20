@@ -486,6 +486,15 @@ A visualization might help (taken from `r Citet(my_bib, "schratz_performance_201
 I know this might seem a bit overwhelming in the beginning but it is an easy concept once you get your head around it.
 You can reread nested spatial cross-validation including hyperparamter tuning in Chapter 11 of [*Geocomputation with R*](https://geocompr.robinlovelace.net/spatial-cv) `r Citep(my_bib, "lovelace_geocomputation_2018", .opts = list(cite.style = "authoryear"))`
 
+???
+Model selection without nested CV uses the same data to tune model parameters and evaluate model performance. Information may thus “leak” into the model and overfit the data. The magnitude of this effect is primarily dependent on the size of the dataset and the stability of the model. See Cawley and Talbot [1] for an analysis of these issues.
+http://scikit-learn.org/stable/auto_examples/model_selection/plot_nested_cross_validation_iris.html
+
+
+Since we used the test set to both select the values of the parameter and evaluate the model, we risk optimistically biasing our model evaluations. For this reason, if a test set is used to select model parameters, then we need a different test set to get an unbiased evaluation of that selected model.
+
+One way to overcome this problem is to have nested cross validations. First, an inner cross validation is used to tune the parameters and select the best model. Second, an outer cross validation is used to evaluate the model selected by the inner cross validation.
+
 ---
 
 # Hyperparameter tuning
@@ -612,6 +621,13 @@ Still, it is always worth to have a look at simple solutions -> use the most par
 
 # Predictive mapping
 Find the code again in `code/spatial_cv/01-mlr.R` of the `geocompr/geostats_18`.
+
+<center>
+<figure>
+<img align="center" src="img/pred_map.png", width=60%, height=60%/>
+</figure>
+</center>
+
 
 ---
 class: small
