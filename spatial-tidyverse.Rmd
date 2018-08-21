@@ -16,7 +16,7 @@ bibliography: refs-geostat.bib
 ---
 
 
-<!-- 14:15 - 15:00 - 45 minute talk  -->
+<!-- msg: Looks like I'll have a second change to demonstrate this code: 55% of people in the poll wanted sea level rise (SLR) to be the example dataset for the dplyr/sf integration workshop tomorrow. Watch this space --><!-- 14:15 - 15:00 - 45 minute talk  -->
 <!-- Aims: show-off the book, provide overview, some useful things in it -->
 
 
