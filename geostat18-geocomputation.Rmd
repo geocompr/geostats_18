@@ -53,19 +53,18 @@ background-size: cover
 
 --
 
-- [Robin Lovelace](https://www.robinlovelace.net/), creator of **stplanr**. Lecturing 11:00 Weds on spatial data and the **tidyverse**.
+- [Robin Lovelace](https://www.robinlovelace.net/), creator of **stplanr**, co-author of Efficent R Programming. Lecturing 11:00 Weds on spatial data and the **tidyverse**.
 
 --
 
-- Front cover image competition! Submissions (code / ideas welcome) by Thursday evening. Prize: $100 CRC Press book voucher.
+- Front cover image competition! Submissions (code / ideas welcome) by Thursday evening. Prize: ~~$100~~ $150 CRC Press book voucher.
 
 ---
 
 # Find the slides and the code
 
-<br>
-<br>
-https://github.com/geocompr/geostats_18
+<br> Slides: https://geocompr.github.io/presentations/
+<br> Source code: https://github.com/geocompr/geostats_18
 
 To install all packages used in the book:
 
@@ -242,7 +241,51 @@ It's about doing "practical work that is beneficial or useful" `r Citep(my_bib, 
 
 ---
 
-# A little less conversation...
+# What's in the geocompr box?
+
+.pull-left[
+
+- Chapter 1: History + 'philosophy' = important
+
+Foundations
+
+- Starting from nothing
+- Class definitions
+- Spatial/attribute operations
+- Projections 
+- Data IO
+
+Extensions
+
+- Advanced methods
+- How to build your own functions
+
+Applications
+
+- A taster of what you can do
+
+]
+
+.pull-right[
+```{r, echo=FALSE, message=FALSE, out.height="500"}
+knitr::include_graphics("images/geocompr-index.png")
+```
+]
+
+
+---
+
+# Just do it!
+
+--
+
+"A little less conversation a little more action"
+
+--
+
+- "The sky is the limit with R" (Tom Hengl, 2018)
+
+--
 
 ![](https://media.giphy.com/media/OMeGDxdAsMPzW/giphy.gif)
 
@@ -276,7 +319,10 @@ library(splancs)
 
 ---
 
+# Live demo (try this)!
+
 ```{r, fig.height=4}
+# install.packages("splancs"); library(splancs)
 # example, interactive! (commented bits)
 data(bodmin)
 plot(bodmin$poly, asp=1, type="n")
@@ -474,12 +520,9 @@ tm_shape(nz) +
 `r Citep(my_bib, "tennekes_tmap_2018", .opts = list(cite.style = "authoryear"))`.
 
 
--
 
-
+```{r, fig.cap="tmap basics", out.width="32%", fig.show='hold', echo=FALSE, eval=FALSE}
 # tmap basics
-
-```{r, fig.cap="tmap basics", out.width="32%", fig.show='hold'}
 # Add fill layer to nz shape
 tm_shape(nz) + tm_fill() 
 # Add border layer to nz shape
@@ -502,17 +545,86 @@ knitr::include_graphics("https://user-images.githubusercontent.com/1825120/38543
 
 # Interactive maps with mapview
 
+- Lives at https://github.com/r-spatial/mapview
+
 ```{r, eval=FALSE}
 m = mapview::mapview(nz)
 m@map
 ```
 
+--
+
+- See Tim Applehans's talk Tomorrow
+
 ---
 
-# Web mapping applications
+# Just do it! II
 
-- Leaflet integrates with **shiny** via `leaflet::leafletOutput()`, enabling web mapping applications built on R
-- These can be set-up to scale nationally, as illustrated by [pct.bike](http://www.pct.bike/)
+--
+
+> Geographic data can save the world ([Robin Lovelace 2018, Jena](https://twitter.com/robinlovelace/status/983978278569553920))
+
+--
+
+> One of the most intriguing things about spatial data problems is that things which appear to be trivially easy to a human being can be surprisingly difficult on a computer (Wise 2001, from [geocompr.robinlovelace.net/algorithms.html](http://geocompr.robinlovelace.net/algorithms.html)).
+
+--
+
+![](https://media.giphy.com/media/OMeGDxdAsMPzW/giphy.gif)
+
+---
+
+# Finding a problem that is "beneficial or useful"
+
+- With so much data emerging, more options than ever, including:
+
+--
+
+- Earth: how to replenish topsoil?
+- Water: how to deal with aquifer depletion?
+- Fire: how to encourage fire-resistent ecosystems?
+
+---
+
+## (Retrospective) justification
+
+--
+
+- It's supported by evidence! (see previous figure):
+
+```{r, echo=FALSE}
+# knitr::include_graphics("images/slr-long-clark-caption.png")
+```
+
+--
+
+- Why study it? (are there 'bigger fish to fry'?)
+<!-- what you're studying? Scientific justifications abound. -->
+
+--
+
+> We are headed for "much higher global average temperature than any interglacial in the past 1.2 million years and to sea levels significantly higher than at any time in the Holocene" 
+`r Citep(my_bib, "steffen_trajectories_2018", .opts = list(cite.style = "authoryear"))`
+
+> Melting at the base of floating ice shelves [of the West Antarctic Ice Sheet (WAIS)] can lead to runaway retreat ... WAIS + Greenland have contributed at most ∼3 to 10 m
+`r Citep(my_bib, "pollard_potential_2015", .opts = list(cite.style = "authoryear"))`
+
+--
+
+- Retrospective justifications like "I like bikes" 
+`r Citep(my_bib, "lovelace_propensity_2017", .opts = list(cite.style = "authoryear"))`
+`r emojifont::emoji("negative_squared_cross_mark")`
+
+--
+
+- Pre-emptive justification like "it's the number one area I can make a difference" (you can always change direction) `r emojifont::emoji("heavy_check_mark")`
+
+---
+
+# A case study of doing something useful I
+
+- Motivation: I like bikes!
+- Tech: **shiny** + `leaflet::leafletOutput()` -> [pct.bike](http://www.pct.bike/)
 `r Citep(my_bib, "lovelace_propensity_2017", .opts = list(cite.style = "authoryear"))`.
 
 
@@ -522,37 +634,54 @@ knitr::include_graphics("https://raw.githubusercontent.com/npct/pct-team/master/
 
 ---
 
-# A case study of 'doing' something useful
+
+# Sea level rise: a global geo* issue
+
+- How to prepare for future sea level rise 
+`r Citep(my_bib, "clark_consequences_2016", .opts = list(cite.style = "authoryear"))`?
+
+```{r, echo=FALSE}
+knitr::include_graphics("images/slr-long-clark-et-al-2016.png")
+```
+
+---
+
+# A case study of 'doing' something useful II
 
 - Sea level rise could change the course of humanity
 - See code: https://github.com/geocompr/geostats_18/blob/master/code/geocompr/slr.R
-
-Todo: improve this section, add refs + image!
+- Live demo, leading to this (to be continued Weds, see geostats_18):
 
 ```{r}
-
+knitr::include_graphics("https://camo.githubusercontent.com/9ba73ec5a33f2e5a008d04517ea8ba12a7b0c01d/68747470733a2f2f692e696d6775722e636f6d2f634a62304977312e706e67")
 ```
 
 ---
 
 # What's next for geocomputation with R?
 
-- Geocomputation with R is not a finished story
+- Geocomputation can be applied to many area and it's not a finished story
 
--- 
+--
 
-- Consolidation
+- Consolidation (Geocomputation workshops on Wednesday)
 
 --
 
 - Growth of cloud services + containerisation
-- Big raster (Edzer's workshop)
+- Big raster (Edzer and Markus's workshops on Thursday)
 - Integration with other languages like Python
 - More bridges
 
 ---
+class: small
 
-# References
+# References + contact
+
+- To contact us about the book - go to [github.com/Robinlovelace/geocompr](https://github.com/Robinlovelace/geocompr)
+- Social media: [#geocompr](https://twitter.com/hashtag/geocompr)
+<!-- - Good old fashioned email: r.lovelace at leeds dot ac dot uk -->
+--
 
 ```{r, 'refs', results="asis", echo=FALSE}
 PrintBibliography(my_bib)
