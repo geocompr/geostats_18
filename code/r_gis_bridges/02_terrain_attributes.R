@@ -46,7 +46,7 @@ get_args_man("saga:sinkremoval")
 # METHOD 1: Fill sinks
 # run the algorithm
 run_qgis("saga:sinkremoval", DEM = dem, METHOD = 1,
-         DEM_PREPROC = file.path("data/sdem.tif"))
+         DEM_PREPROC = file.path("images/sdem.tif"))
 
 # compute catchment slope and catchment area using sagawetnessindex
 get_usage("saga:sagawetnessindex")
@@ -66,11 +66,11 @@ run_qgis("saga:sagawetnessindex",
          DEM = dem,
          SLOPE_TYPE = 1,
          AREA_TYPE = 1,
-         SLOPE = "data/cslope.tif",
-         AREA = "data/carea.tif"
+         SLOPE = "images/cslope.tif",
+         AREA = "images/carea.tif"
          # if this not works under Windows, replace .tif by .sdat
-         # SLOPE = "data/cslope.sdat",
-         # AREA = "data/carea.sdat"
+         # SLOPE = "images/cslope.sdat",
+         # AREA = "images/carea.sdat"
          )
 # ok, let's also save dem and ndvi
 # export altitudes and NDVI as GTiff-rasterfiles
