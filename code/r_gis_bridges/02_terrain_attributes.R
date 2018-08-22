@@ -34,7 +34,7 @@ data("dem", "ndvi", "study_area", package = "RQGIS")
 hs = hillShade(terrain(dem), terrain(dem, "aspect"), 40, 270)
 plot(hs, col = gray(0:100 / 100), legend = FALSE)
 plot(dem, add = TRUE, alpha = 0.5)
-plot(st_geometry(d), add = TRUE)
+plot(st_geometry(study_area), add = TRUE)
 
 # Remove sinks, i.e. geometric artifacts, from the DEM
 
