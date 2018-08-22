@@ -9,7 +9,10 @@
 #**********************************************************
 #
 # 1. ATTACH PACKAGES AND DATA
-# 2.
+# 2. INTERSECTION USING RQGIS
+# 3. YOUR TURN
+# 4. SAGA WETNESS INDEX
+# 5. VIEWSHED ANALYSIS
 #
 #**********************************************************
 # 1 ATTACH PACKAGES AND DATA-------------------------------
@@ -256,9 +259,10 @@ data("dem")
 data("random_points")
 
 find_algorithms("viewshed")
+# alg = "grass7:r.viewshed"
 alg = "grass7:r.viewshed"
 get_usage(alg)
-open_help(alg)
+# open_help(alg)
 # let's find out about the default values
 get_args_man(alg)
 point = random_points[sample(1:nrow(random_points), 1), ]
