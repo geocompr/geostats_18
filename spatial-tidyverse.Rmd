@@ -1,6 +1,6 @@
 ---
 title: "Spatial data and the tidyverse"
-subtitle: "🌐<br/> combining tidy tools for geocomputation with R"
+subtitle: "<br/> tidy tools for geocomputation with R"
 author: "Robin Lovelace, Jannes Menchow and Jakub Nowosad"
 date: "GeoStat 2018. Source code: [github.com/geocompr/geostats_18](https://github.com/geocompr/geostats_18/blob/master/spatial-tidyverse.Rmd) "
 output:
