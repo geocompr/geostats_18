@@ -144,7 +144,7 @@ parallelStop()
 # saveRDS(result, "code/spatial_cv/images/rf_sp_sp_50it.rds")
 
 
-# 3.3.2. Non-spaital doing the same non-spatially
+# 3.3.2. Non-spatial doing the same non-spatially
 # create task
 task_nsp = makeRegrTask(data = rp, target = "sc")
 # performance estimation level with 5 spatial partitions and 100 repetitions
